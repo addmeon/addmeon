@@ -1,9 +1,13 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { MantineProvider } from '@mantine/core';
+import {useViewportSize} from "@mantine/hooks";
 
 export default function App(props) {
   const { Component, pageProps } = props;
+
+    const { height, width } = useViewportSize();
+    const isMobile=height>width;
 
   return (
       <>
@@ -20,7 +24,7 @@ export default function App(props) {
               colorScheme: 'light',
             }}
         >
-          <Component {...pageProps} />
+          <Component {...pageProps} isMobile={isMobile} userAgentHeight={height} userAgentWidth={width} />
         </MantineProvider>
       </>
   );

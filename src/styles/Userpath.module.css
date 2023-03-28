@@ -1,0 +1,28 @@
+
+.boujee {
+    --bg-size:400%;
+    --color-one: hsl(265, 100%, 65%);
+    --color-two: hsl(205, 95%, 65%);
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 7vh;
+    background: linear-gradient(
+            90deg,
+            var(--color-one),
+            var(--color-two),
+            var(--color-one)
+    )
+    0 0 / var(--bg-size) 100%;
+    color: transparent;
+    background-clip: text;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .boujee {
+        animation: move-bg 8s linear infinite;
+    }
+    @keyframes move-bg {
+        to {
+            background-position: var(--bg-size) 0;
+        }
+    }
+}
