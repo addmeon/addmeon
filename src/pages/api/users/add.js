@@ -2,7 +2,7 @@
 
 import {MongoClient, ServerApiVersion} from "mongodb";
 
-// TODO check username is applicable to route
+// TODO check username is applicable to route, check user has authenticated email or phone
 
 export default async function handler(req, res) {
 
@@ -20,16 +20,20 @@ export default async function handler(req, res) {
         .db(process.env.MONGODB_DATABASE_NAME)
         .collection("users");
 
-    if (await collection.findOne({userPath: req.body.userPath}))
+    if (await collection.findOne({userPath: req.body.userPath})) {
+        await client.close();
         return res.status(400).json({error: "user already exists"});
+    }
 
     try {
         // TODO: validation of req.body
         await collection.insertOne(req.body);
+        await client.close();
         return res.status(200).json({message: "user successfully saved"});
     } catch (err) {
         return res.status(503).json({error: err});
     }
+
 
 
 }

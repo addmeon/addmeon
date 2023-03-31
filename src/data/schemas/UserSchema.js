@@ -1,7 +1,6 @@
 const user = {
     email: {type: String, required: true},
-    password: {type: String, required: true},
-    userPath: {type: String, required: true},
+    userPath: {type: String},
     profilePicture: {type: String},
     addMeOns: [{
         mobile: {type: String},
