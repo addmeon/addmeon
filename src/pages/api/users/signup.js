@@ -7,10 +7,12 @@ import { render } from '@react-email/render';
 import jwt from "jsonwebtoken";
 
 export default async function handler(req, res) {
-    if(!req.body.email) return res.status(400).json({error: "no email specified"});
+    const bodyJson = JSON.parse(req.body);
+    if(!bodyJson.email) return res.status(400).json({error: "no email specified"});
+    if(!bodyJson.deviceId) return res.status(400).json({error: "no deviceId specified"});
 
     const emailRegex = /^[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
-    if(!emailRegex.test(req.body.email)) return res.status(400).json({error: "invalid email"});
+    if(!emailRegex.test(bodyJson.email)) return res.status(400).json({error: "invalid email"});
 
     const client = new MongoClient(process.env.MONGODB_URI, {
         useNewUrlParser: true,
@@ -27,32 +29,33 @@ export default async function handler(req, res) {
         .collection("users");
 
     try {
-        if(!await collection.findOne({email: req.body.email}))
-            await collection.insertOne({email: req.body.email});
+        if(!await collection.findOne({email: bodyJson.email}))
+            await collection.insertOne({email: bodyJson.email});
     } catch (e) {
         console.error(e);
         return res.status(503).end();
     }
 
     const date = new Date();
-    const token = jwt.sign({email: req.body.email, expiration: date.setHours(date.getHours() + 0.25)},
+    const token = jwt.sign({email: bodyJson.email, deviceId: bodyJson.deviceId, expiration: date.setHours(date.getHours() + 0.25)},
         process.env.JWT_SECRET);
 
     const emailHtml = render(SignUpEmail({ url: process.env.HOST + "/account?token=" + token}));
 
     const options = {
         from: process.env.STRATO_MAIL_USER,
-        to: req.body.email,
-        subject: 'Confirm your Email',
+        to: bodyJson.email,
+        subject: 'Confirm your Sign In',
         html: emailHtml,
     };
 
     try {
         await transporter.sendMail(options);
+        await client.close();
     } catch (e) {
         console.error(e);
-        return res.status(503).end();
+        return res.status(503).json({error: e});
     }
 
-    return res.status(200).end();
+    return res.status(200).json({ok: true});
 }
