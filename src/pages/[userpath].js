@@ -28,9 +28,7 @@ export async function getServerSideProps(context) {
         .collection("users")
         .findOne({userPath: context.query.userpath})
     if (databaseReturn === null) return {
-        props: {
-            userNotFound: true
-        }
+        notFound: true
     };
     return {
         props: {
@@ -45,12 +43,6 @@ export default function UserPage(props) {
     const router = useRouter();
     const {userpath} = router.query;
 
-    // TODO: make user not found prettier
-    if (props.userNotFound) return (
-        <>
-            <Text>User doesn't exist yet</Text>
-        </>
-    );
 
     const addMeOnHandler = (addMeOn) => {
         if (addMeOn.native) window.location = addMeOn.native;
