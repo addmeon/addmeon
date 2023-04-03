@@ -9,7 +9,7 @@ export default function Custom404() {
 
     useEffect(() => {
         setPath(router.asPath);
-    })
+    }, []);
 
     return <h1>User {path} doesn't exist yet</h1>
 }
