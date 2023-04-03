@@ -13,6 +13,7 @@ import AddMeOnButton from "@/components/AddMeOnButton";
 
 
 export async function getServerSideProps(context) {
+    
     const client = new MongoClient(process.env.MONGODB_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -26,14 +27,18 @@ export async function getServerSideProps(context) {
     let databaseReturn = await client
         .db(process.env.MONGODB_DATABASE_NAME)
         .collection("users")
-        .findOne({userPath: context.query.userpath})
+        .findOne({userPath: context.query.userpath});
+
+    await client.close();
     if (databaseReturn === null) return {
         notFound: true
     };
+
     return {
         props: {
-            profilePicture: JSON.parse(JSON.stringify(databaseReturn.profilePicture)),
-            addMeOns: JSON.parse(JSON.stringify(databaseReturn.addMeOns)),
+            // next props can only be null or json parsable
+            profilePicture: databaseReturn.profilePicture === undefined ? null : databaseReturn.profilePicture,
+            addMeOns: databaseReturn.profilePicture === undefined ? null : databaseReturn.profilePicture,
         }, // will be passed to the page component as props
     }
 }
@@ -70,120 +75,119 @@ export default function UserPage(props) {
                     <Title align="center" color="white" style={{paddingBottom: "1vh"}}>Add me on:</Title>
 
                     <ScrollArea h={0.51 * props.userAgentHeight} type="never">
-                        <Stack align="center" spacing="lg">
+                        {props.addMeOns &&
+                            <Stack align="center" spacing="lg">
 
-                            {
-                                props.addMeOns.mobile &&
-                                <AddMeOnButton
-                                    handler={() => addMeOnHandler(props.addMeOns.mobile)}
-                                    gradientFrom={'#ffffff'} gradientTo={'#ffffff'}
-                                    icon={<IconPhone color="black" style={{width: "10vw"}}/>}
-                                    name="Mobile"
-                                    textColor={"black"}
-                                />
-                            }
+                                {
+                                    props.addMeOns.mobile &&
+                                    <AddMeOnButton
+                                        handler={() => addMeOnHandler(props.addMeOns.mobile)}
+                                        gradientFrom={'#ffffff'} gradientTo={'#ffffff'}
+                                        icon={<IconPhone color="black" style={{width: "10vw"}}/>}
+                                        name="Mobile"
+                                        textColor={"black"}
+                                    />
+                                }
 
-                            {
-                                props.addMeOns.instagram &&
-                                <AddMeOnButton
-                                    handler={() => addMeOnHandler(props.addMeOns.instagram)}
-                                    gradientFrom={'purple'} gradientTo={'orange'}
-                                    icon={<IconBrandInstagram style={{width: "10vw"}}/>}
-                                    name="Instagram"
-                                />
-                            }
+                                {
+                                    props.addMeOns.instagram &&
+                                    <AddMeOnButton
+                                        handler={() => addMeOnHandler(props.addMeOns.instagram)}
+                                        gradientFrom={'purple'} gradientTo={'orange'}
+                                        icon={<IconBrandInstagram style={{width: "10vw"}}/>}
+                                        name="Instagram"
+                                    />
+                                }
 
-                            {
-                                props.addMeOns.snapchat &&
-                                <AddMeOnButton
-                                    handler={() => addMeOnHandler(props.addMeOns.snapchat)}
-                                    gradientFrom={'#FFFC00'} gradientTo={'#FFFC00'}
-                                    icon={<IconBrandSnapchat color="black" style={{width: "10vw", fill: "white"}}/>}
-                                    name="Snapchat"
-                                    textColor="black"
-                                />
-                            }
+                                {
+                                    props.addMeOns.snapchat &&
+                                    <AddMeOnButton
+                                        handler={() => addMeOnHandler(props.addMeOns.snapchat)}
+                                        gradientFrom={'#FFFC00'} gradientTo={'#FFFC00'}
+                                        icon={<IconBrandSnapchat color="black" style={{width: "10vw", fill: "white"}}/>}
+                                        name="Snapchat"
+                                        textColor="black"
+                                    />
+                                }
 
-                            {
-                                props.addMeOns.linkedin &&
-                                <AddMeOnButton
-                                    handler={() => addMeOnHandler(props.addMeOns.linkedin)}
-                                    gradientFrom={'blue'} gradientTo={'blue'}
-                                    icon={<IconBrandLinkedin style={{width: "10vw"}}/>}
-                                    name="LinkedIn"
-                                />
-                            }
+                                {
+                                    props.addMeOns.linkedin &&
+                                    <AddMeOnButton
+                                        handler={() => addMeOnHandler(props.addMeOns.linkedin)}
+                                        gradientFrom={'blue'} gradientTo={'blue'}
+                                        icon={<IconBrandLinkedin style={{width: "10vw"}}/>}
+                                        name="LinkedIn"
+                                    />
+                                }
 
-                            {
-                                props.addMeOns.bereal &&
-                                <Button
-                                    onClick={() => addMeOnHandler(props.addMeOns.bereal)}
-                                    variant="gradient" gradient={{from: '#000000', to: '#000000'}}
-                                    radius="xl" style={{width: "50vw"}}>
-                                    <Group>
-                                        <Text>BeReal.</Text>
-                                    </Group>
-                                </Button>
-                            }
+                                {
+                                    props.addMeOns.bereal &&
+                                    <Button
+                                        onClick={() => addMeOnHandler(props.addMeOns.bereal)}
+                                        variant="gradient" gradient={{from: '#000000', to: '#000000'}}
+                                        radius="xl" style={{width: "50vw"}}>
+                                        <Group>
+                                            <Text>BeReal.</Text>
+                                        </Group>
+                                    </Button>
+                                }
 
-                            {
-                                props.addMeOns.paypal &&
-                                <AddMeOnButton
-                                    handler={() => addMeOnHandler(props.addMeOns.paypal)}
-                                    gradientFrom={'#1E477A'} gradientTo={'#1E477A'}
-                                    icon={<IconBrandPaypal style={{width: "10vw"}}/>}
-                                    name="PayPal"
-                                />
-                            }
+                                {
+                                    props.addMeOns.paypal &&
+                                    <AddMeOnButton
+                                        handler={() => addMeOnHandler(props.addMeOns.paypal)}
+                                        gradientFrom={'#1E477A'} gradientTo={'#1E477A'}
+                                        icon={<IconBrandPaypal style={{width: "10vw"}}/>}
+                                        name="PayPal"
+                                    />
+                                }
 
-                            {
-                                props.addMeOns.tiktok &&
-                                <AddMeOnButton
-                                    handler={() => addMeOnHandler(props.addMeOns.tiktok)}
-                                    gradientFrom={'#000000'} gradientTo={'#000000'}
-                                    icon={<IconBrandTiktok style={{width: "10vw"}}/>}
-                                    name="TikTok"
-                                />
-                            }
+                                {
+                                    props.addMeOns.tiktok &&
+                                    <AddMeOnButton
+                                        handler={() => addMeOnHandler(props.addMeOns.tiktok)}
+                                        gradientFrom={'#000000'} gradientTo={'#000000'}
+                                        icon={<IconBrandTiktok style={{width: "10vw"}}/>}
+                                        name="TikTok"
+                                    />
+                                }
 
-                            {
-                                props.addMeOns.discord &&
-                                <AddMeOnButton
-                                    handler={() => addMeOnHandler(props.addMeOns.discord)}
-                                    gradientFrom={'#7289da'} gradientTo={'#7289da'}
-                                    icon={<IconBrandDiscord style={{width: "10vw"}}/>}
-                                    name="Discord"
-                                />
-                            }
+                                {
+                                    props.addMeOns.discord &&
+                                    <AddMeOnButton
+                                        handler={() => addMeOnHandler(props.addMeOns.discord)}
+                                        gradientFrom={'#7289da'} gradientTo={'#7289da'}
+                                        icon={<IconBrandDiscord style={{width: "10vw"}}/>}
+                                        name="Discord"
+                                    />
+                                }
 
-                            {
-                                props.addMeOns.facebook &&
-                                <AddMeOnButton
-                                    handler={() => addMeOnHandler(props.addMeOns.facebook)}
-                                    gradientFrom={'#4267B2'} gradientTo={'#4267B2'}
-                                    icon={<IconBrandFacebook style={{width: "10vw"}}/>}
-                                    name="facebook"
-                                />
-                            }
+                                {
+                                    props.addMeOns.facebook &&
+                                    <AddMeOnButton
+                                        handler={() => addMeOnHandler(props.addMeOns.facebook)}
+                                        gradientFrom={'#4267B2'} gradientTo={'#4267B2'}
+                                        icon={<IconBrandFacebook style={{width: "10vw"}}/>}
+                                        name="facebook"
+                                    />
+                                }
 
-                            {
-                                props.addMeOns.twitter &&
-                                <AddMeOnButton
-                                    handler={() => addMeOnHandler(props.addMeOns.twitter)}
-                                    gradientFrom={'#1DA1F2'} gradientTo={'#1DA1F2'}
-                                    icon={<IconBrandTwitter style={{width: "10vw"}}/>}
-                                    name="twitter"
-                                />
-                            }
-
-
-                        </Stack>
+                                {
+                                    props.addMeOns.twitter &&
+                                    <AddMeOnButton
+                                        handler={() => addMeOnHandler(props.addMeOns.twitter)}
+                                        gradientFrom={'#1DA1F2'} gradientTo={'#1DA1F2'}
+                                        icon={<IconBrandTwitter style={{width: "10vw"}}/>}
+                                        name="twitter"
+                                    />
+                                }
+                            </Stack>
+                        }
                     </ScrollArea>
-
-
                 </BackgroundImage>
             </Paper>
 
         </>
-    );
+    )
+        ;
 }
