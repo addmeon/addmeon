@@ -50,7 +50,7 @@ export async function getServerSideProps(context) {
         props: {
             // next props can only be null or json parsable
             profilePicture: databaseReturn.profilePicture === undefined ? null : databaseReturn.profilePicture,
-            addMeOns: databaseReturn.profilePicture === undefined ? null : databaseReturn.profilePicture,
+            addMeOns: databaseReturn.addMeOns === undefined ? null : databaseReturn.addMeOns,
         }, // will be passed to the page component as props
     }
 }
