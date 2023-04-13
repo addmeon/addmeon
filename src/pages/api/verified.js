@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
     console.log(req.body);
     console.log(user.devices);
-    if(user) if(user.devices.some((item) => JSON.stringify(item) === JSON.stringify(req.body.deviceId)))
+    if(user.devices) if(user.devices.some((item) => JSON.stringify(item) === JSON.stringify(req.body.deviceId)))
         return res.status(200).json({verified: "true"});
     return res.status(400).json({verified: "false"});
 }
