@@ -33,8 +33,9 @@ export default async function handler(req, res) {
 
     try {
         // TODO: validation of req.body
-        const addMeOnsCopy = user.addMeOns;
-        addMeOnsCopy[req.body.key] = {link: req.body.value}
+        const addMeOnsCopy = new Object(user.addMeOns);
+        addMeOnsCopy[req.body.key] = {link: req.body.value};
+        console.log(addMeOnsCopy);
         await collection.updateOne({email: req.body.email}, {$set: {addMeOns: addMeOnsCopy}});
         await client.close();
         return res.status(200).json({addMeOns: addMeOnsCopy});
