@@ -18,10 +18,7 @@ export default function AccountPage(props) {
             .then(res => res.json())
             .then(data => {
                 setEmail(data.email);
-                try {
-                    window.location="addmeon://";
-                    // TODO: android deeplink
-                } catch (e) {window.error(e)}
+
             });
     }, [router.query]);
 
