@@ -40,7 +40,7 @@ export default async function handler(req, res) {
     const token = jwt.sign({email: bodyJson.email, deviceId: bodyJson.deviceId, expiration: date.setHours(date.getHours() + 0.25)},
         process.env.JWT_SECRET);
 
-    const emailHtml = render(SignUpEmail({ url: process.env.HOST + "/account?token=" + token}));
+    const emailHtml = render(SignUpEmail({ url: "https://addmeon.org/account?token=" + token}));
 
     const options = {
         from: process.env.STRATO_MAIL_USER,
