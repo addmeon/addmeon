@@ -49,13 +49,33 @@ export default async function handler(req, res) {
         html: emailHtml,
     };
 
-    try {
-        await transporter.sendMail(options);
-        await client.close();
-    } catch (e) {
-        console.error(e);
-        return res.status(503).json({error: e});
-    }
+    await new Promise((resolve, reject) => {
+        // verify connection configuration
+        transporter.verify(function (error, success) {
+            if (error) {
+                console.error(error);
+                reject(error);
+            } else {
+                console.log("Server is ready to take our messages");
+                resolve(success);
+            }
+        });
+    });
+
+
+    await new Promise((resolve, reject) => {
+        // send mail
+        transporter.sendMail(options, (err, info) => {
+            if (err) {
+                console.error(err);
+                reject(err);
+            } else {
+                console.log(info);
+                resolve(info);
+            }
+        });
+
+    });
 
     return res.status(200).json({ok: true});
 }
