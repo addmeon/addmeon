@@ -25,7 +25,6 @@ import AddMeOnButton from "@/components/AddMeOnButton";
 
 
 export async function getServerSideProps(context) {
-
     const client = new MongoClient(process.env.MONGODB_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -204,13 +203,19 @@ export default function UserPage(props) {
                             :
                             <>
                                 <Container>
-                                    <Card style={{backgroundColor: "rgba(0, 0, 0, 0.5)"}} radius="xl" >
+                                    <Card style={{backgroundColor: "rgba(0, 0, 0, 0.5)"}} radius="xl">
                                         <Stack align="center">
                                             <Title color="white" style={{padding: "1vh"}} align="center">
                                                 Welcome to your Add Me On Page!
                                             </Title>
                                             <Text color="white" align="center">
-                                                Edit your page in the <a style={{color: "white"}} href="AddMeOn://">app</a> to see your changes here
+                                                {
+                                                    //TODO open app store if not phone
+                                                }
+                                                Edit your page in the
+                                                <a style={{color: "white"}} href="AddMeOn://">app</a>
+                                                to see your changes
+                                                here
                                             </Text>
                                         </Stack>
                                     </Card>

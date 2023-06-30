@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Html } from '@react-email/html';
 import { Button } from '@react-email/button';
 
+
+// TODO: make pretty
 export function SignUpEmail(props) {
     const { url } = props;
 

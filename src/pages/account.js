@@ -5,7 +5,7 @@ import {useEffect, useState} from "react";
 export default function AccountPage(props) {
     const router = useRouter();
     const [email, setEmail] = useState(null);
-
+//TODO: test with new email
 
     useEffect(() => {
         if (!router.query.token) return;
@@ -18,7 +18,6 @@ export default function AccountPage(props) {
             .then(res => res.json())
             .then(data => {
                 setEmail(data.email);
-
             });
     }, [router.query]);
 

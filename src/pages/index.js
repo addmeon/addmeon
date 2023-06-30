@@ -1,8 +1,25 @@
 import Head from 'next/head'
 import styles from "@/styles/Userpath.module.css";
-import {Center, Group, Text} from "@mantine/core";
+import {Center, Group, Text, Transition} from "@mantine/core";
+import {useEffect, useState} from "react";
+import HomePage from "@/components/HomePage";
+import Animation from "@/components/Animation";
 
-export default function Home() {
+export default function Home(props) {
+    const [mountContent, setMountContent] = useState(false);
+    useEffect(() => {
+        let visited = localStorage.getItem("visited");
+        if(visited) setMountContent(true);
+        if (!visited) {
+            setTimeout(
+                () => {
+                    localStorage.setItem("visited", "true");
+                    setMountContent(true);
+                }, 5000
+            );
+        }
+    })
+
     return (
         <>
             <Head>
@@ -12,13 +29,16 @@ export default function Home() {
                 <link rel="icon" href="/favicon.ico"/>
             </Head>
             <main>
-                <Center my={300}>
-                    <div>
-                        <Text size={50} weight={600} align="center">Welcome to </Text>
-                        <Text weight={600} align="center" className={styles.boujee}>addmeon.org</Text>
-                        <Text size={30} align="center">Great things coming soon!</Text>
-                    </div>
-                </Center>
+                <>
+                    {
+                        mountContent ?
+                            <div className="animate__animated animate__fadeIn">
+                                <HomePage/>
+                            </div>
+                            :
+                            <Animation  {...props}/>
+                    }
+                </>
             </main>
         </>
     )
