@@ -2,7 +2,7 @@ import {Button, Center, Group, Loader, Stack, Text, TextInput} from "@mantine/co
 import * as styles from "@/styles/Userpath.module.css";
 import {IconArrowRight} from "@tabler/icons-react";
 import {useEffect, useRef, useState} from "react";
-import {randomId} from "@mantine/hooks";
+import {getHotkeyHandler, randomId, useHotkeys} from "@mantine/hooks";
 import {randomInt} from "next/dist/shared/lib/bloom-filter/utils";
 
 
@@ -31,17 +31,17 @@ export default function EmailInput(props) {
                 deviceId: deviceId
             })
         });
-        console.log( res.status)
-        console.log( res.status === 200)
+
         if( res.status === 200){
             localStorage.setItem("deviceID", deviceId);
             localStorage.setItem("emailSet", ref.current.value);
             props.setEmailSet(true);
         }
-
-
-
     }
+
+    useHotkeys([
+        ['Enter', (e) => handleSignup(e)],
+    ]);
 
 
     return(
@@ -58,7 +58,11 @@ export default function EmailInput(props) {
                                    style={{
                                        border: "1px solid", borderRadius: "0.5vh", height: 36, width: 250,
                                        paddingLeft: 4
-                                   }}/>
+                                   }}
+                                   onKeyDown={getHotkeyHandler([
+                                       ['Enter', handleSignup]
+                                   ])}
+                        />
                         <Button color="dark" variant="outline" onClick={(e) => handleSignup(e)}>
                             {loading ? <Loader color="dark" size="xs"/> : <IconArrowRight/>}
                         </Button>
