@@ -2,6 +2,34 @@ import {useEffect, useState, useRef} from "react";
 import {Center} from "@mantine/core";
 import SetPath from "@/components/SetPath";
 import ProfilePage from "@/components/ProfilePage";
+import {MongoClient, ServerApiVersion} from "mongodb";
+
+export async function getServerSideProps(context) {
+    const client = new MongoClient(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        serverApi: ServerApiVersion.v1
+    });
+    await client.connect()
+        .catch(err => {
+            client.close();
+            console.error(err);
+        });
+    let databaseReturn = await client
+        .db(process.env.MONGODB_DATABASE_NAME)
+        .collection("users")
+        .findOne({userPath: context.query.userpath});
+
+    await client.close();
+
+    return {
+        props: {
+            // next props can only be null or json parsable
+            profilePicture: databaseReturn.profilePicture === undefined ? null : databaseReturn.profilePicture,
+            addMeOns: databaseReturn.addMeOns === undefined ? null : databaseReturn.addMeOns,
+        }, // will be passed to the page component as props
+    }
+}
 
 export default function Profile(props) {
     const [emailSet, setEmailSet] = useState(false);
@@ -39,6 +67,6 @@ export default function Profile(props) {
 
     if (userPath === "") return <SetPath/>;
 
-    return <ProfilePage/>;
+    return <ProfilePage addMeOns={props.addMeOns}/>;
 
 }

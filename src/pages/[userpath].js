@@ -209,11 +209,8 @@ export default function UserPage(props) {
                                                 Welcome to your Add Me On Page!
                                             </Title>
                                             <Text color="white" align="center">
-                                                {
-                                                    //TODO open app store if not phone
-                                                }
-                                                Edit your page in the
-                                                <a style={{color: "white"}} href="AddMeOn://">app</a>
+                                                Looks like you don't have any links configured yet.
+                                                Edit your page in the profile section
                                                 to see your changes
                                                 here
                                             </Text>

@@ -1,4 +1,3 @@
-import {IconBrandPaypal} from "@tabler/icons-react";
 import {Button, Text} from "@mantine/core";
 
 
