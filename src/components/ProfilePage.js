@@ -9,10 +9,11 @@ import {
     ScrollArea,
     Stack,
     Text,
-    Badge, SimpleGrid, Grid
+    Badge, SimpleGrid, Grid, Drawer, Input, Overlay
 } from "@mantine/core";
 import * as styles from "@/styles/Userpath.module.css";
 import {
+    IconAbc,
     IconArrowRight,
     IconBrandDiscord,
     IconBrandFacebook,
@@ -21,49 +22,94 @@ import {
     IconBrandPaypal,
     IconBrandSnapchat,
     IconBrandTiktok,
-    IconBrandTwitter,
+    IconBrandTwitter, IconDeviceFloppy,
     IconEdit,
     IconLayoutGridAdd,
     IconLink,
     IconPhone,
-    IconPlus, IconSearch
+    IconPlus, IconSearch, IconUser
 } from "@tabler/icons-react";
 import {useDisclosure, useFocusTrap} from "@mantine/hooks";
 import AddMeOnBanner from "@/components/AddMeOnBanner";
+import {useRef, useState} from "react";
 
 
 export default function ProfilePage(props) {
     const [opened, {open, close}] = useDisclosure(false);
+    const [opened2, handlers] = useDisclosure(false);
+
+    const [addMeOnPicked, setAddMeOnPicked] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [visible, setVisible] = useState(false);
+
+    const valueRef = useRef();
+
+    const handleBannerClick = (addMeOn) => {
+        setAddMeOnPicked(addMeOn);
+        handlers.open();
+        setVisible(true)
+    }
+
+    const handleSaveAddMeOn = async () => {
+        setLoading(true);
+        const res = await fetch('/api/users/addmeons/edit', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: localStorage.getItem("emailSet"),
+                key: addMeOnPicked,
+                value: valueRef.current.value
+            })
+        });
+        const data = await res.json();
+        console.log(data);
+
+        setLoading(false);
+        handlers.close();
+    }
 
 
     return (
         <>
-            <Modal opened={opened} onClose={close} title=" " size="lg">
+
+            <Modal centered={true} opened={opened} onClose={() => {
+                close();
+                handlers.close();
+            }} title=" " size="lg">
+                {visible && <Overlay zIndex={1000000} color="#000" opacity={0.85} />}
                 <Text py="sm">What kind of link would you like to add?</Text>
+
                 <Group position="apart">
                     <Button color="dark" variant="outline" size="xs" rightIcon={<IconSearch/>}>
                         <Text>Search </Text>
                     </Button>
-                    <Button color="dark" variant="outline" size="xs" rightIcon={<IconEdit/>}>
+                    <Button color="dark" variant="outline" size="xs" rightIcon={<IconEdit/>}
+                            onClick={() => handleBannerClick("Custom")}>
                         <Text>Custom </Text>
                     </Button>
                 </Group>
+
                 <>
                     <ScrollArea type="never">
-                        <SimpleGrid grow py="sm" spacing="sm" cols={2}>
+                        <SimpleGrid py="sm" spacing="sm" cols={2}>
                             {
+                                !props.addMeOns.mobile &&
                                 <AddMeOnBanner
-                                    handler={() => addMeOnHandler(props.addMeOns.mobile)}
+                                    handler={() => handleBannerClick("mobile")}
                                     gradientFrom={'#ffffff'} gradientTo={'#ffffff'}
                                     icon={<IconPhone color="black"/>}
                                     name="Mobile"
                                     textColor={"black"}
                                 />
+
                             }
 
                             {
+                                !props.addMeOns.instagram &&
                                 <AddMeOnBanner
-                                    handler={() => addMeOnHandler(props.addMeOns.instagram)}
+                                    handler={() => handleBannerClick("instagram")}
                                     gradientFrom={'purple'} gradientTo={'orange'}
                                     icon={<IconBrandInstagram/>}
                                     name="Instagram"
@@ -71,28 +117,31 @@ export default function ProfilePage(props) {
                             }
 
                             {
+                                !props.addMeOns.snapchat &&
                                 <AddMeOnBanner
-                                    handler={() => addMeOnHandler(props.addMeOns.snapchat)}
+                                    handler={() => handleBannerClick("snapchat")}
                                     gradientFrom={'#FFFC00'} gradientTo={'#FFFC00'}
                                     icon={<IconBrandSnapchat color="black"
-                                                             style={{ fill: "white"}}/>}
+                                                             style={{fill: "white"}}/>}
                                     name="Snapchat"
                                     textColor="black"
                                 />
                             }
 
                             {
+                                !props.addMeOns.linkedin &&
                                 <AddMeOnBanner
-                                    handler={() => addMeOnHandler(props.addMeOns.linkedin)}
+                                    handler={() => handleBannerClick("linkedin")}
                                     gradientFrom={'blue'} gradientTo={'blue'}
-                                    icon={<IconBrandLinkedin />}
+                                    icon={<IconBrandLinkedin/>}
                                     name="LinkedIn"
                                 />
                             }
 
                             {
+                                !props.addMeOns.bereal &&
                                 <Button
-                                    onClick={() => addMeOnHandler(props.addMeOns.bereal)}
+                                    onClick={() => handleBannerClick("bereal")}
                                     variant="gradient" gradient={{from: '#000000', to: '#000000'}}
                                     radius="xl">
                                     <Group>
@@ -102,52 +151,94 @@ export default function ProfilePage(props) {
                             }
 
                             {
+                                !props.addMeOns.paypal &&
                                 <AddMeOnBanner
-                                    handler={() => addMeOnHandler(props.addMeOns.paypal)}
+                                    handler={() => handleBannerClick("paypal")}
                                     gradientFrom={'#1E477A'} gradientTo={'#1E477A'}
-                                    icon={<IconBrandPaypal />}
+                                    icon={<IconBrandPaypal/>}
                                     name="PayPal"
                                 />
                             }
 
                             {
+                                !props.addMeOns.tiktok &&
                                 <AddMeOnBanner
-                                    handler={() => addMeOnHandler(props.addMeOns.tiktok)}
+                                    handler={() => handleBannerClick("tiktok")}
                                     gradientFrom={'#000000'} gradientTo={'#000000'}
-                                    icon={<IconBrandTiktok />}
+                                    icon={<IconBrandTiktok/>}
                                     name="TikTok"
                                 />
                             }
 
                             {
+                                !props.addMeOns.discord &&
                                 <AddMeOnBanner
-                                    handler={() => addMeOnHandler(props.addMeOns.discord)}
+                                    handler={() => handleBannerClick("discord")}
                                     gradientFrom={'#7289da'} gradientTo={'#7289da'}
-                                    icon={<IconBrandDiscord />}
+                                    icon={<IconBrandDiscord/>}
                                     name="Discord"
                                 />
                             }
 
                             {
+                                !props.addMeOns.facebook &&
                                 <AddMeOnBanner
-                                    handler={() => addMeOnHandler(props.addMeOns.facebook)}
+                                    handler={() => handleBannerClick("facebook")}
                                     gradientFrom={'#4267B2'} gradientTo={'#4267B2'}
-                                    icon={<IconBrandFacebook />}
+                                    icon={<IconBrandFacebook/>}
                                     name="facebook"
                                 />
                             }
 
                             {
+                                !props.addMeOns.twitter &&
                                 <AddMeOnBanner
-                                    handler={() => addMeOnHandler(props.addMeOns.twitter)}
+                                    handler={() => handleBannerClick("twitter")}
                                     gradientFrom={'#1DA1F2'} gradientTo={'#1DA1F2'}
-                                    icon={<IconBrandTwitter />}
+                                    icon={<IconBrandTwitter/>}
                                     name="twitter"
                                 />
                             }
                         </SimpleGrid>
                     </ScrollArea>
                 </>
+            </Modal>
+
+
+            <Modal centered={true} opened={opened2} onClose={() => {setVisible(false);handlers.close();}}
+                   title={"Add your " + addMeOnPicked + (addMeOnPicked === "mobile" ? " number" :" link")}
+                   style={{zIndex: 100000000000000000000000000}}>
+                {addMeOnPicked === "Custom" &&
+                    <TextInput
+                        icon={<IconAbc/>}
+                        data-autofocus
+                        placeholder={"Button Display Name"}
+                    />
+                }
+                {addMeOnPicked === "mobile" &&
+                    <TextInput
+                        icon={<IconUser/>}
+                        data-autofocus
+                        placeholder={"Name displayed on contact card"}
+                    />
+                }
+                <TextInput
+                    ref={valueRef}
+                    color="dark"
+                    icon={addMeOnPicked === "mobile" ? <IconPhone/> : <IconLink/>}
+                    py="sm" data-autofocus={addMeOnPicked !== "mobile"}
+                    placeholder={addMeOnPicked === "mobile" ?
+                        "Enter Your Mobile Number"
+                        : "Enter your link including 'https://'"}
+                />
+                <Group position="right">
+                    <Button color="dark" variant="outline"
+                            loading={loading}
+                            onClick={handleSaveAddMeOn}
+                            leftIcon={<IconDeviceFloppy/>}>
+                        Save
+                    </Button>
+                </Group>
             </Modal>
 
             <Center p="md">
@@ -159,133 +250,146 @@ export default function ProfilePage(props) {
                         <span className={styles.boujee}>{localStorage.getItem("userPath")}</span>
                     </Text>
                     <Stack py="xl">
-                        {
-                            props.addMeOns ?
-                                <>
-                                    <ScrollArea h={0.51 * props.userAgentHeight} type="never">
 
-                                        <Stack align="center" spacing="lg">
-
-                                            {
-                                                props.addMeOns.mobile &&
-                                                <AddMeOnBanner
-                                                    handler={() => addMeOnHandler(props.addMeOns.mobile)}
-                                                    gradientFrom={'#ffffff'} gradientTo={'#ffffff'}
-                                                    icon={<IconPhone color="black" style={{width: "10vw"}}/>}
-                                                    name="Mobile"
-                                                    textColor={"black"}
-                                                />
-                                            }
-
-                                            {
-                                                props.addMeOns.instagram &&
-                                                <AddMeOnBanner
-                                                    handler={() => addMeOnHandler(props.addMeOns.instagram)}
-                                                    gradientFrom={'purple'} gradientTo={'orange'}
-                                                    icon={<IconBrandInstagram style={{width: "10vw"}}/>}
-                                                    name="Instagram"
-                                                />
-                                            }
-
-                                            {
-                                                props.addMeOns.snapchat &&
-                                                <AddMeOnBanner
-                                                    handler={() => addMeOnHandler(props.addMeOns.snapchat)}
-                                                    gradientFrom={'#FFFC00'} gradientTo={'#FFFC00'}
-                                                    icon={<IconBrandSnapchat color="black"
-                                                                             style={{width: "10vw", fill: "white"}}/>}
-                                                    name="Snapchat"
-                                                    textColor="black"
-                                                />
-                                            }
-
-                                            {
-                                                props.addMeOns.linkedin &&
-                                                <AddMeOnBanner
-                                                    handler={() => addMeOnHandler(props.addMeOns.linkedin)}
-                                                    gradientFrom={'blue'} gradientTo={'blue'}
-                                                    icon={<IconBrandLinkedin style={{width: "10vw"}}/>}
-                                                    name="LinkedIn"
-                                                />
-                                            }
-
-                                            {
-                                                props.addMeOns.bereal &&
-                                                <Button
-                                                    onClick={() => addMeOnHandler(props.addMeOns.bereal)}
-                                                    variant="gradient" gradient={{from: '#000000', to: '#000000'}}
-                                                    radius="xl" style={{width: "50vw"}}>
-                                                    <Group>
-                                                        <Text>BeReal.</Text>
-                                                    </Group>
-                                                </Button>
-                                            }
-
-                                            {
-                                                props.addMeOns.paypal &&
-                                                <AddMeOnBanner
-                                                    handler={() => addMeOnHandler(props.addMeOns.paypal)}
-                                                    gradientFrom={'#1E477A'} gradientTo={'#1E477A'}
-                                                    icon={<IconBrandPaypal style={{width: "10vw"}}/>}
-                                                    name="PayPal"
-                                                />
-                                            }
-
-                                            {
-                                                props.addMeOns.tiktok &&
-                                                <AddMeOnBanner
-                                                    handler={() => addMeOnHandler(props.addMeOns.tiktok)}
-                                                    gradientFrom={'#000000'} gradientTo={'#000000'}
-                                                    icon={<IconBrandTiktok style={{width: "10vw"}}/>}
-                                                    name="TikTok"
-                                                />
-                                            }
-
-                                            {
-                                                props.addMeOns.discord &&
-                                                <AddMeOnBanner
-                                                    handler={() => addMeOnHandler(props.addMeOns.discord)}
-                                                    gradientFrom={'#7289da'} gradientTo={'#7289da'}
-                                                    icon={<IconBrandDiscord style={{width: "10vw"}}/>}
-                                                    name="Discord"
-                                                />
-                                            }
-
-                                            {
-                                                props.addMeOns.facebook &&
-                                                <AddMeOnBanner
-                                                    handler={() => addMeOnHandler(props.addMeOns.facebook)}
-                                                    gradientFrom={'#4267B2'} gradientTo={'#4267B2'}
-                                                    icon={<IconBrandFacebook style={{width: "10vw"}}/>}
-                                                    name="facebook"
-                                                />
-                                            }
-
-                                            {
-                                                props.addMeOns.twitter &&
-                                                <AddMeOnBanner
-                                                    handler={() => addMeOnHandler(props.addMeOns.twitter)}
-                                                    gradientFrom={'#1DA1F2'} gradientTo={'#1DA1F2'}
-                                                    icon={<IconBrandTwitter style={{width: "10vw"}}/>}
-                                                    name="twitter"
-                                                />
-                                            }
-                                        </Stack>
-
-                                    </ScrollArea>
-                                </>
-                                :
-                                <>
+                        <>
+                            {
+                                Object.entries(props.addMeOns).length > 0 ?
                                     <Text>
-                                        Looks like you don't have any links configured yet, press the button below to
-                                        add some!
-                                    </Text>
-                                    <Button color="dark" variant="outline" onClick={open}
-                                            rightIcon={<IconLink/>}>
-                                        Add a link
-                                    </Button>
-                                </>
-                        }
+                                        Click the button below to add more links, or edit your existing links below.
+                                    </Text> :
+                                    <Text>Looks like you don't have any links configured yet, press the button below to
+                                        add some!</Text>
+                            }
+                            <Button color="dark" variant="outline" onClick={open}
+                                    rightIcon={<IconLink/>}>
+                                Add a link
+                            </Button>
+
+                        </>
+
+                        <>
+                            <ScrollArea h={0.51 * props.userAgentHeight} type="never">
+
+                                <SimpleGrid cols={2} align="center">
+                                    {
+                                        props.addMeOns.mobile &&
+                                        <AddMeOnBanner
+                                            edit
+                                            handler={() => handleBannerClick("mobile")}
+                                            gradientFrom={'#ffffff'} gradientTo={'#ffffff'}
+                                            icon={<IconPhone color="black"/>}
+                                            name="Mobile"
+                                            textColor={"black"}
+                                        />
+                                    }
+
+                                    {
+                                        props.addMeOns.instagram &&
+                                        <AddMeOnBanner
+                                            edit
+                                            handler={() => handleBannerClick("instagram")}
+                                            gradientFrom={'purple'} gradientTo={'orange'}
+                                            icon={<IconBrandInstagram/>}
+                                            name="Instagram"
+                                        />
+                                    }
+
+                                    {
+                                        props.addMeOns.snapchat &&
+                                        <AddMeOnBanner
+                                            edit
+                                            handler={() => handleBannerClick("snapchat")}
+                                            gradientFrom={'#FFFC00'} gradientTo={'#FFFC00'}
+                                            icon={<IconBrandSnapchat color="black"
+                                                                     style={{fill: "white"}}/>}
+                                            name="Snapchat"
+                                            textColor="black"
+                                        />
+                                    }
+
+                                    {
+                                        props.addMeOns.linkedin &&
+                                        <AddMeOnBanner
+                                            edit
+                                            handler={() => handleBannerClick("linkedin")}
+                                            gradientFrom={'blue'} gradientTo={'blue'}
+                                            icon={<IconBrandLinkedin/>}
+                                            name="LinkedIn"
+                                        />
+                                    }
+
+                                    {
+                                        props.addMeOns.bereal &&
+                                        <Button
+                                            edit
+                                            handler={() => handleBannerClick("bereal")}
+                                            variant="gradient" gradient={{from: '#000000', to: '#000000'}}
+                                            radius="xl">
+                                            <Group>
+                                                <Text>BeReal.</Text>
+                                            </Group>
+                                        </Button>
+                                    }
+
+                                    {
+                                        props.addMeOns.paypal &&
+                                        <AddMeOnBanner
+                                            edit
+                                            handler={() => handleBannerClick("paypal")}
+                                            gradientFrom={'#1E477A'} gradientTo={'#1E477A'}
+                                            icon={<IconBrandPaypal/>}
+                                            name="PayPal"
+                                        />
+                                    }
+
+                                    {
+                                        props.addMeOns.tiktok &&
+                                        <AddMeOnBanner
+                                            edit
+                                            handler={() => handleBannerClick("tiktok")}
+                                            gradientFrom={'#000000'} gradientTo={'#000000'}
+                                            icon={<IconBrandTiktok/>}
+                                            name="TikTok"
+                                        />
+                                    }
+
+                                    {
+                                        props.addMeOns.discord &&
+                                        <AddMeOnBanner
+                                            edit
+                                            handler={() => handleBannerClick("discord")}
+                                            gradientFrom={'#7289da'} gradientTo={'#7289da'}
+                                            icon={<IconBrandDiscord/>}
+                                            name="Discord"
+                                        />
+                                    }
+
+                                    {
+                                        props.addMeOns.facebook &&
+                                        <AddMeOnBanner
+                                            edit
+                                            handler={() => handleBannerClick("facebook")}
+                                            gradientFrom={'#4267B2'} gradientTo={'#4267B2'}
+                                            icon={<IconBrandFacebook/>}
+                                            name="facebook"
+                                        />
+                                    }
+
+                                    {
+                                        props.addMeOns.twitter &&
+                                        <AddMeOnBanner
+                                            edit
+                                            handler={() => handleBannerClick("twitter")}
+                                            gradientFrom={'#1DA1F2'} gradientTo={'#1DA1F2'}
+                                            icon={<IconBrandTwitter/>}
+                                            name="twitter"
+                                        />
+                                    }
+                                </SimpleGrid>
+
+                            </ScrollArea>
+                        </>
+
                     </Stack>
                 </Stack>
             </Center>

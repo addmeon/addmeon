@@ -3,6 +3,7 @@ import {Center} from "@mantine/core";
 import SetPath from "@/components/SetPath";
 import ProfilePage from "@/components/ProfilePage";
 import {MongoClient, ServerApiVersion} from "mongodb";
+import {useRouter} from "next/router";
 
 export async function getServerSideProps(context) {
     const client = new MongoClient(process.env.MONGODB_URI, {
@@ -18,9 +19,11 @@ export async function getServerSideProps(context) {
     let databaseReturn = await client
         .db(process.env.MONGODB_DATABASE_NAME)
         .collection("users")
-        .findOne({userPath: context.query.userpath});
+        .findOne({userPath: context.query.userPath});
 
     await client.close();
+
+    if (databaseReturn === null) return {props: {addMeOns: {}}};
 
     return {
         props: {
@@ -35,13 +38,15 @@ export default function Profile(props) {
     const [emailSet, setEmailSet] = useState(false);
     const [userPath, setUserPath] = useState("");
 
+    const router = useRouter();
+
     useEffect(() => {
         const userHasPath = localStorage.getItem("userPath");
         const email = localStorage.getItem("emailSet");
         if (!email) return;
         setEmailSet(true);
         if (userHasPath) return setUserPath(userHasPath);
-        const res = fetch('/api/haspath', {
+        fetch('/api/haspath', {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json"
@@ -54,7 +59,7 @@ export default function Profile(props) {
                 localStorage.setItem("userPath", data.path);
                 setUserPath(data.path);
             }
-        })
+        });
     }, []);
 
 
@@ -67,6 +72,12 @@ export default function Profile(props) {
 
     if (userPath === "") return <SetPath/>;
 
-    return <ProfilePage addMeOns={props.addMeOns}/>;
+    if (router.query.userPath === userPath) return <ProfilePage addMeOns={props.addMeOns === null ? {} : props.addMeOns}/>;
+
+    router.query.userPath = userPath;
+    router.push(router).then(r => console.log(r));
+
+    return <ProfilePage addMeOns={props.addMeOns === null ? {} : props.addMeOns}/>;
+
 
 }
