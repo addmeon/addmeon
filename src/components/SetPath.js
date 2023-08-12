@@ -44,7 +44,8 @@ export default function SetPath(props) {
         console.log(res)
         if(data.message) {
             localStorage.setItem("userPath", ref.current.value);
-            await router.push('/profile');
+            await router.push('/profile?userPath=' + ref.current.value);
+            props.setUserPath(ref.current.value);
         }
     }
 

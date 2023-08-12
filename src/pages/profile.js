@@ -45,7 +45,7 @@ export default function Profile(props) {
         const email = localStorage.getItem("emailSet");
         if (!email) return;
         setEmailSet(true);
-        if (userHasPath) return setUserPath(userHasPath);
+        if (userHasPath!==null) return setUserPath(userHasPath);
         fetch('/api/haspath', {
             method: 'POST',
             headers: {
@@ -70,12 +70,11 @@ export default function Profile(props) {
         </>
     );
 
-    if (userPath === "") return <SetPath/>;
+    if (userPath === "") return <SetPath setUserPath={setUserPath}/>;
 
     if (router.query.userPath === userPath) return <ProfilePage addMeOns={props.addMeOns === null ? {} : props.addMeOns}/>;
 
-    router.query.userPath = userPath;
-    router.push(router).then(r => console.log(r));
+    router.push('/profile?userPath=' + userPath, {}, {shallow: true});
 
     return <ProfilePage addMeOns={props.addMeOns === null ? {} : props.addMeOns}/>;
 
