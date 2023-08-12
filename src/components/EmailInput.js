@@ -26,6 +26,9 @@ export default function EmailInput(props) {
         const deviceId = ref.current.value + Date.now() +  randomInt(0, 99999);
         const res = await fetch('/api/users/signup', {
             method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({
                 email: ref.current.value,
                 deviceId: deviceId

@@ -20,7 +20,9 @@ export default async function handler(req, res) {
 
     try {
         const user = await collection.findOne({email: req.body.email});
-        res.status(200).json({path: user.path})
+        console.log(user);
+        await client.close();
+        res.status(200).json({path: user.userPath})
     } catch (e) {
         console.error(e);
         await client.close();

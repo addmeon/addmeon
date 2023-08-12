@@ -1,5 +1,6 @@
 import {useRouter} from "next/router";
 import {useEffect, useState} from "react";
+import {Center, Text, Loader, Stack} from "@mantine/core";
 
 
 export default function AccountPage(props) {
@@ -18,16 +19,20 @@ export default function AccountPage(props) {
             .then(res => res.json())
             .then(data => {
                 setEmail(data.email);
+                router.push('/profile');
             });
     }, [router.query]);
 
     return (
         <>
-            {email ?
-                <div>Thank you for confirming your email address at {email}</div>
-                :
-                <div>account</div>
-            }
+                <>
+                    <Center maw={400} h={"100vh"} mx="auto">
+                        <Stack align="center">
+                            <Loader color="dark"/>
+                            <Text>We're verifying your Email</Text>
+                        </Stack>
+                    </Center>
+                </>
         </>
     );
 }

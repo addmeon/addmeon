@@ -18,11 +18,14 @@ export const SignUpEmail = ({url}) => (
         <Head />
         <Body style={main}>
             <Container style={container}>
+                <Heading style={primary}>
+                    AddMeOn
+                </Heading>
                 <Heading style={secondary}>
-                    Please click the button below to confirm your account
+                    Please click the button below to confirm your sign in
                 </Heading>
                 <Section style={codeContainer}>
-                    <Button style={code} href={url}>confirm my account</Button>
+                    <Button style={code} href={url}>Confirm</Button>
                 </Section>
             </Container>
         </Body>
@@ -33,7 +36,7 @@ export default SignUpEmail;
 
 const main = {
     backgroundColor: '#ffffff',
-    fontFamily: 'HelveticaNeue,Helvetica,Arial,sans-serif',
+    fontFamily: '"Helvetica Neue", sans-serif',
 };
 
 const container = {
@@ -47,20 +50,15 @@ const container = {
     padding: '68px 0 130px',
 };
 
-const logo = {
-    margin: '0 auto',
-};
+const primary = {
+    color: '#000',
 
-const tertiary = {
-    color: '#0a85ea',
-    fontSize: '11px',
-    fontWeight: 700,
-    fontFamily: 'HelveticaNeue,Helvetica,Arial,sans-serif',
-    height: '16px',
-    letterSpacing: '0',
-    lineHeight: '16px',
-    margin: '16px 8px 8px 8px',
-    textTransform: 'uppercase' ,
+    fontFamily: 'HelveticaNeue-Bold',
+    fontSize: '24px',
+    fontWeight: 500,
+    lineHeight: '28px',
+    marginBottom: '20px',
+    marginTop: '0',
     textAlign: 'center',
 };
 
@@ -77,20 +75,21 @@ const secondary = {
 };
 
 const codeContainer = {
-    background: 'rgba(15,10, 222,.5)',
+    background: '#FFF',
     borderRadius: '4px',
     margin: '16px auto 14px',
     verticalAlign: 'middle',
     width: '280px',
+    border: '2px solid black',
 };
 
 const code = {
-    color: '#FFF',
+    color: '#000',
     display: 'inline-block',
-    fontFamily: 'HelveticaNeue-Bold',
-    fontSize: '32px',
+    fontFamily: 'HelveticaNeue-Medium,Helvetica,Arial,sans-serif',
+    fontSize: '24px',
     fontWeight: 300,
-    lineHeight: '40px',
+    lineHeight: '28px',
     paddingBottom: '8px',
     paddingTop: '8px',
     margin: '0 auto',

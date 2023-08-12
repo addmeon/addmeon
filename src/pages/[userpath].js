@@ -75,13 +75,7 @@ export default function UserPage(props) {
                     style={{height: "96vh"}}
                 >
                     <Stack align="center" spacing="md">
-                        <Avatar
-                            src={props.profilePicture}
-                            radius={0.1 * props.userAgentHeight}
-                            size={0.2 * props.userAgentHeight}
-                            style={{zIndex: "3", top: "2vh"}}
-                        />
-                        <Text weight={450} className={styles.boujee}>{"/" + userpath}</Text>
+                        <Text weight={450} size="6vh" className={styles.boujee}>{"/" + userpath}</Text>
                     </Stack>
                     {
                         props.addMeOns ?

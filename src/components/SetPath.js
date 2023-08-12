@@ -55,7 +55,7 @@ export default function SetPath(props) {
 
 
     return (
-        <>
+        <div className="animate__animated animate__fadeIn">
             <Center h="100vh" inline={true} ml={20}>
                 <Stack align="flex-start" spacing="sm">
                     <Text size="4vh">
@@ -86,6 +86,6 @@ export default function SetPath(props) {
                     {error !=="" && <Text size="sm">{error}</Text>}
                 </Stack>
             </Center>
-        </>
+        </div>
     );
 }

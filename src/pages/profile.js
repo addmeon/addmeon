@@ -37,10 +37,12 @@ export async function getServerSideProps(context) {
 export default function Profile(props) {
     const [emailSet, setEmailSet] = useState(false);
     const [userPath, setUserPath] = useState("");
+    const [hidden, setHidden] = useState(true);
 
     const router = useRouter();
 
     useEffect(() => {
+        setTimeout(() => setHidden(false), 1000)
         const userHasPath = localStorage.getItem("userPath");
         const email = localStorage.getItem("emailSet");
         if (!email) return;
@@ -55,6 +57,7 @@ export default function Profile(props) {
                 email: email
             })
         }).then(res => res.json()).then(data => {
+            console.log(data)
             if (data.path) {
                 localStorage.setItem("userPath", data.path);
                 setUserPath(data.path);
@@ -66,7 +69,9 @@ export default function Profile(props) {
     if (!emailSet) return (
         <>
             <br/>
+            <div hidden={hidden}>
             <Center>Please login to view your profile</Center>
+            </div>
         </>
     );
 
@@ -74,7 +79,7 @@ export default function Profile(props) {
 
     if (router.query.userPath === userPath) return <ProfilePage addMeOns={props.addMeOns === null ? {} : props.addMeOns}/>;
 
-    router.push('/profile?userPath=' + userPath, {}, {shallow: true});
+    router.push('/profile?userPath=' + userPath, {}, );
 
     return <ProfilePage addMeOns={props.addMeOns === null ? {} : props.addMeOns}/>;
 

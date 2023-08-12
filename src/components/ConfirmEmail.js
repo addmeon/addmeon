@@ -10,7 +10,7 @@ export default function EmailInput(props) {
     const router = useRouter()
 
     useEffect(() => {
-        setInterval(async () => {
+        const intervalId = setInterval(async () => {
             const res = await fetch('/api/verified', {
                 method: 'POST',
                 headers: {
@@ -24,10 +24,12 @@ export default function EmailInput(props) {
             const data = await res.json();
             console.log(data);
             if (data.verified == 'true') {
+                clearInterval(intervalId);
                 console.log("true")
-                await router.push('/profile');
+                return await router.push('/profile', {}, {shallow: true});
             }
         }, 1000);
+
     }, []);
 
 
@@ -36,10 +38,14 @@ export default function EmailInput(props) {
         setLoading(true)
         const res = await fetch('/api/users/signup', {
             method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({
                 email: localStorage.getItem("emailSet"),
                 deviceId: localStorage.getItem("deviceID")
-            })
+            }),
+
         });
         if (res.status === 200) setLoading(false);
     }
@@ -53,11 +59,11 @@ export default function EmailInput(props) {
                         <Text span>We've sent a confirmation link to </Text>
                         <Text className={styles.boujee}>{localStorage.getItem("emailSet")}.</Text>
                         <Text>
-                            Please use it to confirm your email.
+                            Please use it to confirm this device.
                         </Text>
                     </Group>
                     <Text size="xs" color="dimmed">
-                        (This page will reload as soon as your email has been confirmed)
+                        (This page will reload as soon as you have clicked the confirmation link in your email)
                     </Text>
                     <Button color="dark" variant="outline"
                             loading={loading} loaderPosition="right" onClick={handleResend}>

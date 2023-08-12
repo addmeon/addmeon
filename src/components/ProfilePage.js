@@ -41,6 +41,9 @@ export default function ProfilePage(props) {
     const [addMeOnPicked, setAddMeOnPicked] = useState("");
     const [loading, setLoading] = useState(false);
     const [visible, setVisible] = useState(false);
+    const [addMeOns, setAddMeOns] = useState({...props.addMeOns});
+
+    console.log(addMeOns)
 
     const valueRef = useRef();
 
@@ -64,9 +67,11 @@ export default function ProfilePage(props) {
             })
         });
         const data = await res.json();
+        setAddMeOns(data.addMeOns);
         console.log(data);
 
         setLoading(false);
+        setVisible(false);
         handlers.close();
     }
 
@@ -95,7 +100,7 @@ export default function ProfilePage(props) {
                     <ScrollArea type="never">
                         <SimpleGrid py="sm" spacing="sm" cols={2}>
                             {
-                                !props.addMeOns.mobile &&
+                                !addMeOns.mobile &&
                                 <AddMeOnBanner
                                     handler={() => handleBannerClick("mobile")}
                                     gradientFrom={'#ffffff'} gradientTo={'#ffffff'}
@@ -107,7 +112,7 @@ export default function ProfilePage(props) {
                             }
 
                             {
-                                !props.addMeOns.instagram &&
+                                !addMeOns.instagram &&
                                 <AddMeOnBanner
                                     handler={() => handleBannerClick("instagram")}
                                     gradientFrom={'purple'} gradientTo={'orange'}
@@ -117,7 +122,7 @@ export default function ProfilePage(props) {
                             }
 
                             {
-                                !props.addMeOns.snapchat &&
+                                !addMeOns.snapchat &&
                                 <AddMeOnBanner
                                     handler={() => handleBannerClick("snapchat")}
                                     gradientFrom={'#FFFC00'} gradientTo={'#FFFC00'}
@@ -129,7 +134,7 @@ export default function ProfilePage(props) {
                             }
 
                             {
-                                !props.addMeOns.linkedin &&
+                                !addMeOns.linkedin &&
                                 <AddMeOnBanner
                                     handler={() => handleBannerClick("linkedin")}
                                     gradientFrom={'blue'} gradientTo={'blue'}
@@ -139,11 +144,13 @@ export default function ProfilePage(props) {
                             }
 
                             {
-                                !props.addMeOns.bereal &&
+                                !addMeOns.bereal &&
                                 <Button
                                     onClick={() => handleBannerClick("bereal")}
                                     variant="gradient" gradient={{from: '#000000', to: '#000000'}}
-                                    radius="xl">
+                                    radius="xl"
+
+                                >
                                     <Group>
                                         <Text>BeReal.</Text>
                                     </Group>
@@ -151,7 +158,7 @@ export default function ProfilePage(props) {
                             }
 
                             {
-                                !props.addMeOns.paypal &&
+                                !addMeOns.paypal &&
                                 <AddMeOnBanner
                                     handler={() => handleBannerClick("paypal")}
                                     gradientFrom={'#1E477A'} gradientTo={'#1E477A'}
@@ -161,7 +168,7 @@ export default function ProfilePage(props) {
                             }
 
                             {
-                                !props.addMeOns.tiktok &&
+                                !addMeOns.tiktok &&
                                 <AddMeOnBanner
                                     handler={() => handleBannerClick("tiktok")}
                                     gradientFrom={'#000000'} gradientTo={'#000000'}
@@ -171,7 +178,7 @@ export default function ProfilePage(props) {
                             }
 
                             {
-                                !props.addMeOns.discord &&
+                                !addMeOns.discord &&
                                 <AddMeOnBanner
                                     handler={() => handleBannerClick("discord")}
                                     gradientFrom={'#7289da'} gradientTo={'#7289da'}
@@ -181,7 +188,7 @@ export default function ProfilePage(props) {
                             }
 
                             {
-                                !props.addMeOns.facebook &&
+                                !addMeOns.facebook &&
                                 <AddMeOnBanner
                                     handler={() => handleBannerClick("facebook")}
                                     gradientFrom={'#4267B2'} gradientTo={'#4267B2'}
@@ -191,7 +198,7 @@ export default function ProfilePage(props) {
                             }
 
                             {
-                                !props.addMeOns.twitter &&
+                                !addMeOns.twitter &&
                                 <AddMeOnBanner
                                     handler={() => handleBannerClick("twitter")}
                                     gradientFrom={'#1DA1F2'} gradientTo={'#1DA1F2'}
@@ -253,7 +260,7 @@ export default function ProfilePage(props) {
 
                         <>
                             {
-                                Object.entries(props.addMeOns).length > 0 ?
+                                Object.entries(addMeOns).length > 0 ?
                                     <Text>
                                         Click the button below to add more links, or edit your existing links below.
                                     </Text> :
@@ -272,7 +279,7 @@ export default function ProfilePage(props) {
 
                                 <SimpleGrid cols={2} align="center">
                                     {
-                                        props.addMeOns.mobile &&
+                                        addMeOns.mobile &&
                                         <AddMeOnBanner
                                             edit
                                             handler={() => handleBannerClick("mobile")}
@@ -284,7 +291,7 @@ export default function ProfilePage(props) {
                                     }
 
                                     {
-                                        props.addMeOns.instagram &&
+                                        addMeOns.instagram &&
                                         <AddMeOnBanner
                                             edit
                                             handler={() => handleBannerClick("instagram")}
@@ -295,7 +302,7 @@ export default function ProfilePage(props) {
                                     }
 
                                     {
-                                        props.addMeOns.snapchat &&
+                                        addMeOns.snapchat &&
                                         <AddMeOnBanner
                                             edit
                                             handler={() => handleBannerClick("snapchat")}
@@ -308,7 +315,7 @@ export default function ProfilePage(props) {
                                     }
 
                                     {
-                                        props.addMeOns.linkedin &&
+                                        addMeOns.linkedin &&
                                         <AddMeOnBanner
                                             edit
                                             handler={() => handleBannerClick("linkedin")}
@@ -319,9 +326,9 @@ export default function ProfilePage(props) {
                                     }
 
                                     {
-                                        props.addMeOns.bereal &&
+                                        addMeOns.bereal &&
                                         <Button
-                                            edit
+                                            rightIcon={<IconEdit/>}
                                             handler={() => handleBannerClick("bereal")}
                                             variant="gradient" gradient={{from: '#000000', to: '#000000'}}
                                             radius="xl">
@@ -332,7 +339,7 @@ export default function ProfilePage(props) {
                                     }
 
                                     {
-                                        props.addMeOns.paypal &&
+                                        addMeOns.paypal &&
                                         <AddMeOnBanner
                                             edit
                                             handler={() => handleBannerClick("paypal")}
@@ -343,7 +350,7 @@ export default function ProfilePage(props) {
                                     }
 
                                     {
-                                        props.addMeOns.tiktok &&
+                                        addMeOns.tiktok &&
                                         <AddMeOnBanner
                                             edit
                                             handler={() => handleBannerClick("tiktok")}
@@ -354,7 +361,7 @@ export default function ProfilePage(props) {
                                     }
 
                                     {
-                                        props.addMeOns.discord &&
+                                        addMeOns.discord &&
                                         <AddMeOnBanner
                                             edit
                                             handler={() => handleBannerClick("discord")}
@@ -365,7 +372,7 @@ export default function ProfilePage(props) {
                                     }
 
                                     {
-                                        props.addMeOns.facebook &&
+                                        addMeOns.facebook &&
                                         <AddMeOnBanner
                                             edit
                                             handler={() => handleBannerClick("facebook")}
@@ -376,7 +383,7 @@ export default function ProfilePage(props) {
                                     }
 
                                     {
-                                        props.addMeOns.twitter &&
+                                        addMeOns.twitter &&
                                         <AddMeOnBanner
                                             edit
                                             handler={() => handleBannerClick("twitter")}

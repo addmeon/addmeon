@@ -7,12 +7,11 @@ import { render } from '@react-email/render';
 import jwt from "jsonwebtoken";
 
 export default async function handler(req, res) {
-    const bodyJson = JSON.parse(req.body);
-    if(!bodyJson.email) return res.status(400).json({error: "no email specified"});
-    if(!bodyJson.deviceId) return res.status(400).json({error: "no deviceId specified"});
+    if(!req.body.email) return res.status(400).json({error: "no email specified"});
+    if(!req.body.deviceId) return res.status(400).json({error: "no deviceId specified"});
 
     const emailRegex = /^[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+\/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/;
-    if(!emailRegex.test(bodyJson.email)) return res.status(400).json({error: "invalid email"});
+    if(!emailRegex.test(req.body.email)) return res.status(400).json({error: "invalid email"});
 
     const client = new MongoClient(process.env.MONGODB_URI, {
         useNewUrlParser: true,
@@ -29,22 +28,22 @@ export default async function handler(req, res) {
         .collection("users");
 
     try {
-        if(!await collection.findOne({email: bodyJson.email}))
-            await collection.insertOne({email: bodyJson.email});
+        if(!await collection.findOne({email: req.body.email}))
+            await collection.insertOne({email: req.body.email});
     } catch (e) {
         console.error(e);
         return res.status(503).end();
     }
 
     const date = new Date();
-    const token = jwt.sign({email: bodyJson.email, deviceId: bodyJson.deviceId, expiration: date.setHours(date.getHours() + 0.25)},
+    const token = jwt.sign({email: req.body.email, deviceId: req.body.deviceId, expiration: date.setHours(date.getHours() + 0.25)},
         process.env.JWT_SECRET);
 
     const emailHtml = render(SignUpEmail({ url: "https://addmeon.org/account?token=" + token}));
 
     const options = {
         from: process.env.STRATO_MAIL_USER,
-        to: bodyJson.email,
+        to: req.body.email,
         subject: 'Confirm your Sign In',
         html: emailHtml,
     };
