@@ -9,7 +9,7 @@ import {
     ScrollArea,
     Stack,
     Text,
-    Badge, SimpleGrid, Grid, Drawer, Input, Overlay
+    Badge, SimpleGrid, Grid, Drawer, Input, Overlay, Select
 } from "@mantine/core";
 import * as styles from "@/styles/Userpath.module.css";
 import {
@@ -29,11 +29,14 @@ import {
     IconPhone,
     IconPlus, IconSearch, IconTrash, IconUser
 } from "@tabler/icons-react";
-import {useDisclosure, useFocusTrap} from "@mantine/hooks";
+import {useDisclosure, useFocusTrap, useFocusWithin} from "@mantine/hooks";
 import AddMeOnBanner from "@/components/AddMeOnBanner";
 import {useEffect, useRef, useState} from "react";
 import addMeOnsDef from "@/data/AddMeOns";
 
+// TODO:
+//  --> mobile button saving to contact card
+//  --> user page custom button etc.
 
 export default function ProfilePage(props) {
     const [opened, {open, close}] = useDisclosure(false);
@@ -46,9 +49,11 @@ export default function ProfilePage(props) {
     const [editMode, setEditMode] = useState(false);
     const [editValue, setEditValue] = useState("");
     const [customKeyValue, setCustomKeyValue] = useState("");
+    const [searchMode, setSearchMode] = useState(false);
 
     const valueRef = useRef();
     const customKeyRef = useRef();
+    const searchRef = useFocusWithin();
 
     useEffect(() => setAddMeOns(props.addMeOns), [props.addMeOns]);
 
@@ -76,6 +81,7 @@ export default function ProfilePage(props) {
         setLoading(false);
         setVisible(false);
         handlers.close();
+        setSearchMode(false);
     }
 
     const handleDeleteAddMeOn = async () => {
@@ -121,7 +127,7 @@ export default function ProfilePage(props) {
     let customIndex = 0;
     for (const key in addMeOns) {
         let cI = customIndex;
-        if(key === "custom" && addMeOns.custom.length <1 ) break;
+        if (key === "custom" && addMeOns.custom.length < 1) break;
         addMeOnBannersEdit.push(
             <AddMeOnBanner
                 edit
@@ -138,7 +144,7 @@ export default function ProfilePage(props) {
 
     let addMeOnBanners = [];
     for (const key in addMeOnsDef) {
-        if (addMeOns[key] === undefined && key!=="custom") addMeOnBanners.push(
+        if (addMeOns[key] === undefined && key !== "custom") addMeOnBanners.push(
             <AddMeOnBanner
                 handler={() => handleBannerClick(key)}
                 gradientFrom={addMeOnsDef[key].gradient.from}
@@ -146,6 +152,15 @@ export default function ProfilePage(props) {
                 icon={addMeOnsDef[key].icon}
                 name={addMeOnsDef[key].name}
             />
+        );
+    }
+    let addMeOnSearch = [];
+    for (const key in addMeOnsDef) {
+        if (addMeOns[key] === undefined && key !== "custom") addMeOnSearch.push(
+            {
+                value: key,
+                label: addMeOnsDef[key].name
+            }
         );
     }
     console.log(addMeOnBanners)
@@ -157,18 +172,27 @@ export default function ProfilePage(props) {
             <Modal centered={true} opened={opened} onClose={() => {
                 close();
                 handlers.close();
+                setSearchMode(false);
             }} title=" " size="lg">
                 {visible && <Overlay zIndex={1000000} color="#000" opacity={0.85}/>}
                 <Text py="sm">What kind of link would you like to add?</Text>
 
                 <Group position="apart">
-                    <Button color="dark" variant="outline" size="xs" rightIcon={<IconSearch/>} onClick={""}>
-                        <Text>Search </Text>
-                    </Button>
-                    <Button color="dark" variant="outline" size="xs" rightIcon={<IconEdit/>}
-                            onClick={() => handleBannerClick("custom")}>
-                        <Text>Custom</Text>
-                    </Button>
+
+
+                        <Select
+                            placeholder="Search.."
+                            rightSection={<></>}
+                            size="xs"
+                            searchable
+                            onChange={(v) => handleBannerClick(v)}
+                            data={addMeOnSearch}
+                        />
+
+                        <Button color="dark" variant="outline" size="xs" rightIcon={<IconEdit/>}
+                                onClick={() => handleBannerClick("custom")}>
+                            <Text>Custom</Text>
+                        </Button>
                 </Group>
 
                 <>
@@ -186,6 +210,7 @@ export default function ProfilePage(props) {
                        setVisible(false);
                        handlers.close();
                        setEditMode(false);
+                       setSearchMode(false);
                    }}
                    title={(editMode ? "Edit" : "Add")
                        + " your " + addMeOnPicked +
@@ -272,5 +297,5 @@ export default function ProfilePage(props) {
                 </Stack>
             </Center>
         </>
-    )
+)
 }
