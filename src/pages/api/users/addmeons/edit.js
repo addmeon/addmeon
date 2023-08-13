@@ -46,6 +46,11 @@ export default async function handler(req, res) {
                 : delete addMeOnsCopy[req.body.key];
         }
         if(req.body.value) addMeOnsCopy[req.body.key] = {link: req.body.value};
+        if(req.body.tel) {
+            addMeOnsCopy[req.body.key].name= req.body.name;
+            addMeOnsCopy[req.body.key].telNumber= req.body.telNumber;
+        }
+
         console.log(addMeOnsCopy);
         await collection.updateOne({email: req.body.email}, {$set: {addMeOns: addMeOnsCopy}});
         await client.close();

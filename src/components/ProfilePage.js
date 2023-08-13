@@ -49,11 +49,10 @@ export default function ProfilePage(props) {
     const [editMode, setEditMode] = useState(false);
     const [editValue, setEditValue] = useState("");
     const [customKeyValue, setCustomKeyValue] = useState("");
-    const [searchMode, setSearchMode] = useState(false);
+    const [mobileNameValue, setMobileNameValue] = useState("");
 
     const valueRef = useRef();
     const customKeyRef = useRef();
-    const searchRef = useFocusWithin();
 
     useEffect(() => setAddMeOns(props.addMeOns), [props.addMeOns]);
 
@@ -65,8 +64,14 @@ export default function ProfilePage(props) {
         };
         addMeOnPicked === "custom" ?
             postBody.custom = {label: customKeyRef.current.value, link: valueRef.current.value}
-            :
-            postBody.value = valueRef.current.value;
+            : valueRef.current.value;
+        if (addMeOnPicked === "mobile") {
+            postBody.tel = true;
+            postBody.value = encodeURI("BEGIN:VCARD\nVERSION:4.0\nFN:" + mobileNameValue +
+                "\nTEL;TYPE#home,voice;VALUE#uri:tel:" + valueRef.current.value + "\nEND:VCARD");
+            postBody.name = mobileNameValue;
+            postBody.telNumber = valueRef.current.value;
+        }
         const res = await fetch('/api/users/addmeons/edit', {
             method: 'POST',
             headers: {
@@ -81,7 +86,6 @@ export default function ProfilePage(props) {
         setLoading(false);
         setVisible(false);
         handlers.close();
-        setSearchMode(false);
     }
 
     const handleDeleteAddMeOn = async () => {
@@ -116,7 +120,11 @@ export default function ProfilePage(props) {
         if (edit) {
             setEditMode(true);
             setEditValue(addMeOn === "custom" ? customObject.link : addMeOns[addMeOn].link);
-            setCustomKeyValue(customObject !== null ? customObject.label : "")
+            setCustomKeyValue(customObject !== null ? customObject.label : "");
+            if (addMeOn === "mobile") {
+                setMobileNameValue(customObject.name);
+                setEditValue(customObject.telNumber);
+            }
         }
         setAddMeOnPicked(addMeOn);
         handlers.open();
@@ -127,11 +135,12 @@ export default function ProfilePage(props) {
     let customIndex = 0;
     for (const key in addMeOns) {
         let cI = customIndex;
-        if (key === "custom" && addMeOns.custom.length < 1) break;
+        if (key === "custom" && addMeOns.custom.length < 1) continue;
         addMeOnBannersEdit.push(
             <AddMeOnBanner
                 edit
-                handler={() => handleBannerClick(key, true, key === "custom" ? addMeOns.custom[cI] : null)}
+                handler={() => handleBannerClick(key, true,
+                    key === "custom" ? addMeOns.custom[cI] :key === "mobile" ? addMeOns["mobile"]:  null)}
                 gradientFrom={addMeOnsDef[key].gradient.from}
                 gradientTo={addMeOnsDef[key].gradient.to}
                 icon={addMeOnsDef[key].icon}
@@ -154,6 +163,7 @@ export default function ProfilePage(props) {
             />
         );
     }
+
     let addMeOnSearch = [];
     for (const key in addMeOnsDef) {
         if (addMeOns[key] === undefined && key !== "custom") addMeOnSearch.push(
@@ -163,7 +173,8 @@ export default function ProfilePage(props) {
             }
         );
     }
-    console.log(addMeOnBanners)
+
+    console.log(addMeOns)
 
 
     return (
@@ -172,27 +183,24 @@ export default function ProfilePage(props) {
             <Modal centered={true} opened={opened} onClose={() => {
                 close();
                 handlers.close();
-                setSearchMode(false);
             }} title=" " size="lg">
                 {visible && <Overlay zIndex={1000000} color="#000" opacity={0.85}/>}
                 <Text py="sm">What kind of link would you like to add?</Text>
 
                 <Group position="apart">
+                    <Select
+                        placeholder="Search.."
+                        rightSection={<></>}
+                        size="xs"
+                        searchable
+                        onChange={(v) => handleBannerClick(v)}
+                        data={addMeOnSearch}
+                    />
 
-
-                        <Select
-                            placeholder="Search.."
-                            rightSection={<></>}
-                            size="xs"
-                            searchable
-                            onChange={(v) => handleBannerClick(v)}
-                            data={addMeOnSearch}
-                        />
-
-                        <Button color="dark" variant="outline" size="xs" rightIcon={<IconEdit/>}
-                                onClick={() => handleBannerClick("custom")}>
-                            <Text>Custom</Text>
-                        </Button>
+                    <Button color="dark" variant="outline" size="xs" rightIcon={<IconEdit/>}
+                            onClick={() => handleBannerClick("custom")}>
+                        <Text>Custom</Text>
+                    </Button>
                 </Group>
 
                 <>
@@ -210,7 +218,6 @@ export default function ProfilePage(props) {
                        setVisible(false);
                        handlers.close();
                        setEditMode(false);
-                       setSearchMode(false);
                    }}
                    title={(editMode ? "Edit" : "Add")
                        + " your " + addMeOnPicked +
@@ -231,6 +238,8 @@ export default function ProfilePage(props) {
                         icon={<IconUser/>}
                         data-autofocus
                         placeholder={"Name displayed on contact card"}
+                        value={mobileNameValue}
+                        onChange={(e) => setMobileNameValue(e.currentTarget.value)}
                     />
                 }
                 <TextInput
@@ -271,7 +280,7 @@ export default function ProfilePage(props) {
                     <Stack py="xl">
                         <>
                             {
-                                Object.entries(addMeOns).length > 0 ?
+                                Object.entries(new Object(addMeOns)).length > 0 ?
                                     <Text>
                                         Click the button below to add more links, or edit your existing links below.
                                     </Text> :
@@ -297,5 +306,5 @@ export default function ProfilePage(props) {
                 </Stack>
             </Center>
         </>
-)
+    )
 }
