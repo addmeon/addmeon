@@ -6,6 +6,7 @@ import {MongoClient, ServerApiVersion} from "mongodb";
 // TODO modify addmeons/add new addmeons
 
 export default async function handler(req, res) {
+    console.log("req.body");
     console.log(req.body);
 
     const client = new MongoClient(process.env.MONGODB_URI, {
@@ -34,12 +35,23 @@ export default async function handler(req, res) {
     try {
         // TODO: validation of req.body
         const addMeOnsCopy = new Object(user.addMeOns);
-        addMeOnsCopy[req.body.key] = {link: req.body.value};
+        if(req.body.custom && !req.body.delete) {
+            if(addMeOnsCopy.custom===undefined) addMeOnsCopy.custom =[];
+            addMeOnsCopy.custom.push(req.body.custom);
+        }
+
+        if(req.body.delete) {
+            req.body.custom ?
+                addMeOnsCopy.custom = addMeOnsCopy.custom.filter(el => el.label!==req.body.custom.label&&el.link!==req.body.custom.link)
+                : delete addMeOnsCopy[req.body.key];
+        }
+        if(req.body.value) addMeOnsCopy[req.body.key] = {link: req.body.value};
         console.log(addMeOnsCopy);
         await collection.updateOne({email: req.body.email}, {$set: {addMeOns: addMeOnsCopy}});
         await client.close();
         return res.status(200).json({addMeOns: addMeOnsCopy});
     } catch (err) {
+        await client.close();
         return res.status(503).json({error: err});
     }
 }

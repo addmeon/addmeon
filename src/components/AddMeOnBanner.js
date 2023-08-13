@@ -7,14 +7,17 @@ const AddMeOnBanner = (props) => {
         <>
             <Button
                 onClick={props.handler}
-                variant={props.gradientTo==='#ffffff' && props.gradientFrom==='#ffffff' ? "outline": "gradient"}
+                variant={props.gradientTo === '#fff' && props.gradientFrom === '#fff' ? "outline" : "gradient"}
                 gradient={{from: props.gradientFrom, to: props.gradientTo}}
-                color="gray"
+                color="dark"
                 radius="xl"
                 leftIcon={props.icon}
-                rightIcon={props.edit && <IconEdit style={{color: props.name==="Mobile" ?"black" :  "white"}}/>}
+                rightIcon={props.edit && <IconEdit style={{
+                    color:
+                        (props.name === "Mobile" || props.name === "Snapchat" || !props.icon)
+                            ? "black" : "white"
+                }}/>}
             >
-
                 <Text color={props.textColor}>{props.name}</Text>
             </Button>
         </>

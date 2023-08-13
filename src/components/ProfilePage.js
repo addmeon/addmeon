@@ -27,11 +27,12 @@ import {
     IconLayoutGridAdd,
     IconLink,
     IconPhone,
-    IconPlus, IconSearch, IconUser
+    IconPlus, IconSearch, IconTrash, IconUser
 } from "@tabler/icons-react";
 import {useDisclosure, useFocusTrap} from "@mantine/hooks";
 import AddMeOnBanner from "@/components/AddMeOnBanner";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
+import addMeOnsDef from "@/data/AddMeOns";
 
 
 export default function ProfilePage(props) {
@@ -42,18 +43,42 @@ export default function ProfilePage(props) {
     const [loading, setLoading] = useState(false);
     const [visible, setVisible] = useState(false);
     const [addMeOns, setAddMeOns] = useState({...props.addMeOns});
-
-    console.log(addMeOns)
+    const [editMode, setEditMode] = useState(false);
+    const [editValue, setEditValue] = useState("");
+    const [customKeyValue, setCustomKeyValue] = useState("");
 
     const valueRef = useRef();
+    const customKeyRef = useRef();
 
-    const handleBannerClick = (addMeOn) => {
-        setAddMeOnPicked(addMeOn);
-        handlers.open();
-        setVisible(true)
-    }
+    useEffect(() => setAddMeOns(props.addMeOns), [props.addMeOns]);
 
     const handleSaveAddMeOn = async () => {
+        setLoading(true);
+        const postBody = {
+            email: localStorage.getItem("emailSet"),
+            key: addMeOnPicked,
+        };
+        addMeOnPicked === "custom" ?
+            postBody.custom = {label: customKeyRef.current.value, link: valueRef.current.value}
+            :
+            postBody.value = valueRef.current.value;
+        const res = await fetch('/api/users/addmeons/edit', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(postBody)
+        });
+        const data = await res.json();
+        await setAddMeOns(data.addMeOns);
+        console.log(data);
+
+        setLoading(false);
+        setVisible(false);
+        handlers.close();
+    }
+
+    const handleDeleteAddMeOn = async () => {
         setLoading(true);
         const res = await fetch('/api/users/addmeons/edit', {
             method: 'POST',
@@ -63,17 +88,67 @@ export default function ProfilePage(props) {
             body: JSON.stringify({
                 email: localStorage.getItem("emailSet"),
                 key: addMeOnPicked,
-                value: valueRef.current.value
+                delete: true,
+                custom: addMeOnPicked === "custom" ?
+                    addMeOns.custom.find(el => el.label === customKeyValue && el.link === editValue)
+                    : null,
             })
         });
         const data = await res.json();
-        setAddMeOns(data.addMeOns);
+        await setAddMeOns(data.addMeOns);
         console.log(data);
 
         setLoading(false);
         setVisible(false);
         handlers.close();
     }
+
+    const handleBannerClick = (addMeOn, edit, customObject) => {
+        console.log(customObject)
+        setEditValue("");
+        setCustomKeyValue("");
+        if (edit) {
+            setEditMode(true);
+            setEditValue(addMeOn === "custom" ? customObject.link : addMeOns[addMeOn].link);
+            setCustomKeyValue(customObject !== null ? customObject.label : "")
+        }
+        setAddMeOnPicked(addMeOn);
+        handlers.open();
+        setVisible(true);
+    }
+
+    let addMeOnBannersEdit = [];
+    let customIndex = 0;
+    for (const key in addMeOns) {
+        let cI = customIndex;
+        if(key === "custom" && addMeOns.custom.length <1 ) break;
+        addMeOnBannersEdit.push(
+            <AddMeOnBanner
+                edit
+                handler={() => handleBannerClick(key, true, key === "custom" ? addMeOns.custom[cI] : null)}
+                gradientFrom={addMeOnsDef[key].gradient.from}
+                gradientTo={addMeOnsDef[key].gradient.to}
+                icon={addMeOnsDef[key].icon}
+                name={key === "custom" ? addMeOns.custom[cI].label : addMeOnsDef[key].name}
+                textColor={addMeOnsDef[key].textColor}
+            />
+        );
+        if (key === "custom") customIndex++;
+    }
+
+    let addMeOnBanners = [];
+    for (const key in addMeOnsDef) {
+        if (addMeOns[key] === undefined && key!=="custom") addMeOnBanners.push(
+            <AddMeOnBanner
+                handler={() => handleBannerClick(key)}
+                gradientFrom={addMeOnsDef[key].gradient.from}
+                gradientTo={addMeOnsDef[key].gradient.to}
+                icon={addMeOnsDef[key].icon}
+                name={addMeOnsDef[key].name}
+            />
+        );
+    }
+    console.log(addMeOnBanners)
 
 
     return (
@@ -83,143 +158,47 @@ export default function ProfilePage(props) {
                 close();
                 handlers.close();
             }} title=" " size="lg">
-                {visible && <Overlay zIndex={1000000} color="#000" opacity={0.85} />}
+                {visible && <Overlay zIndex={1000000} color="#000" opacity={0.85}/>}
                 <Text py="sm">What kind of link would you like to add?</Text>
 
                 <Group position="apart">
-                    <Button color="dark" variant="outline" size="xs" rightIcon={<IconSearch/>}>
+                    <Button color="dark" variant="outline" size="xs" rightIcon={<IconSearch/>} onClick={""}>
                         <Text>Search </Text>
                     </Button>
                     <Button color="dark" variant="outline" size="xs" rightIcon={<IconEdit/>}
-                            onClick={() => handleBannerClick("Custom")}>
-                        <Text>Custom </Text>
+                            onClick={() => handleBannerClick("custom")}>
+                        <Text>Custom</Text>
                     </Button>
                 </Group>
 
                 <>
                     <ScrollArea type="never">
                         <SimpleGrid py="sm" spacing="sm" cols={2}>
-                            {
-                                !addMeOns.mobile &&
-                                <AddMeOnBanner
-                                    handler={() => handleBannerClick("mobile")}
-                                    gradientFrom={'#ffffff'} gradientTo={'#ffffff'}
-                                    icon={<IconPhone color="black"/>}
-                                    name="Mobile"
-                                    textColor={"black"}
-                                />
-
-                            }
-
-                            {
-                                !addMeOns.instagram &&
-                                <AddMeOnBanner
-                                    handler={() => handleBannerClick("instagram")}
-                                    gradientFrom={'purple'} gradientTo={'orange'}
-                                    icon={<IconBrandInstagram/>}
-                                    name="Instagram"
-                                />
-                            }
-
-                            {
-                                !addMeOns.snapchat &&
-                                <AddMeOnBanner
-                                    handler={() => handleBannerClick("snapchat")}
-                                    gradientFrom={'#FFFC00'} gradientTo={'#FFFC00'}
-                                    icon={<IconBrandSnapchat color="black"
-                                                             style={{fill: "white"}}/>}
-                                    name="Snapchat"
-                                    textColor="black"
-                                />
-                            }
-
-                            {
-                                !addMeOns.linkedin &&
-                                <AddMeOnBanner
-                                    handler={() => handleBannerClick("linkedin")}
-                                    gradientFrom={'blue'} gradientTo={'blue'}
-                                    icon={<IconBrandLinkedin/>}
-                                    name="LinkedIn"
-                                />
-                            }
-
-                            {
-                                !addMeOns.bereal &&
-                                <Button
-                                    onClick={() => handleBannerClick("bereal")}
-                                    variant="gradient" gradient={{from: '#000000', to: '#000000'}}
-                                    radius="xl"
-
-                                >
-                                    <Group>
-                                        <Text>BeReal.</Text>
-                                    </Group>
-                                </Button>
-                            }
-
-                            {
-                                !addMeOns.paypal &&
-                                <AddMeOnBanner
-                                    handler={() => handleBannerClick("paypal")}
-                                    gradientFrom={'#1E477A'} gradientTo={'#1E477A'}
-                                    icon={<IconBrandPaypal/>}
-                                    name="PayPal"
-                                />
-                            }
-
-                            {
-                                !addMeOns.tiktok &&
-                                <AddMeOnBanner
-                                    handler={() => handleBannerClick("tiktok")}
-                                    gradientFrom={'#000000'} gradientTo={'#000000'}
-                                    icon={<IconBrandTiktok/>}
-                                    name="TikTok"
-                                />
-                            }
-
-                            {
-                                !addMeOns.discord &&
-                                <AddMeOnBanner
-                                    handler={() => handleBannerClick("discord")}
-                                    gradientFrom={'#7289da'} gradientTo={'#7289da'}
-                                    icon={<IconBrandDiscord/>}
-                                    name="Discord"
-                                />
-                            }
-
-                            {
-                                !addMeOns.facebook &&
-                                <AddMeOnBanner
-                                    handler={() => handleBannerClick("facebook")}
-                                    gradientFrom={'#4267B2'} gradientTo={'#4267B2'}
-                                    icon={<IconBrandFacebook/>}
-                                    name="facebook"
-                                />
-                            }
-
-                            {
-                                !addMeOns.twitter &&
-                                <AddMeOnBanner
-                                    handler={() => handleBannerClick("twitter")}
-                                    gradientFrom={'#1DA1F2'} gradientTo={'#1DA1F2'}
-                                    icon={<IconBrandTwitter/>}
-                                    name="twitter"
-                                />
-                            }
+                            {addMeOnBanners}
                         </SimpleGrid>
                     </ScrollArea>
                 </>
             </Modal>
 
 
-            <Modal centered={true} opened={opened2} onClose={() => {setVisible(false);handlers.close();}}
-                   title={"Add your " + addMeOnPicked + (addMeOnPicked === "mobile" ? " number" :" link")}
+            <Modal centered={true} opened={opened2}
+                   onClose={() => {
+                       setVisible(false);
+                       handlers.close();
+                       setEditMode(false);
+                   }}
+                   title={(editMode ? "Edit" : "Add")
+                       + " your " + addMeOnPicked +
+                       (addMeOnPicked === "mobile" ? " number" : " link")}
                    style={{zIndex: 100000000000000000000000000}}>
-                {addMeOnPicked === "Custom" &&
+                {addMeOnPicked === "custom" &&
                     <TextInput
+                        ref={customKeyRef}
                         icon={<IconAbc/>}
                         data-autofocus
                         placeholder={"Button Display Name"}
+                        value={customKeyValue}
+                        onChange={(e) => setCustomKeyValue(e.currentTarget.value)}
                     />
                 }
                 {addMeOnPicked === "mobile" &&
@@ -236,9 +215,17 @@ export default function ProfilePage(props) {
                     py="sm" data-autofocus={addMeOnPicked !== "mobile"}
                     placeholder={addMeOnPicked === "mobile" ?
                         "Enter Your Mobile Number"
-                        : "Enter your link including 'https://'"}
+                        : "Enter your " + addMeOnPicked + " link including 'https://'"}
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.currentTarget.value)}
                 />
-                <Group position="right">
+                <Group position={editMode ? "apart" : "right"}>
+                    {editMode && <Button color="red" variant="outline"
+                                         loading={loading}
+                                         onClick={handleDeleteAddMeOn}
+                                         leftIcon={<IconTrash/>}>
+                        Delete
+                    </Button>}
                     <Button color="dark" variant="outline"
                             loading={loading}
                             onClick={handleSaveAddMeOn}
@@ -257,7 +244,6 @@ export default function ProfilePage(props) {
                         <span className={styles.boujee}>{localStorage.getItem("userPath")}</span>
                     </Text>
                     <Stack py="xl">
-
                         <>
                             {
                                 Object.entries(addMeOns).length > 0 ?
@@ -276,124 +262,9 @@ export default function ProfilePage(props) {
 
                         <>
                             <ScrollArea h={0.51 * props.userAgentHeight} type="never">
-
                                 <SimpleGrid cols={2} align="center">
-                                    {
-                                        addMeOns.mobile &&
-                                        <AddMeOnBanner
-                                            edit
-                                            handler={() => handleBannerClick("mobile")}
-                                            gradientFrom={'#ffffff'} gradientTo={'#ffffff'}
-                                            icon={<IconPhone color="black"/>}
-                                            name="Mobile"
-                                            textColor={"black"}
-                                        />
-                                    }
-
-                                    {
-                                        addMeOns.instagram &&
-                                        <AddMeOnBanner
-                                            edit
-                                            handler={() => handleBannerClick("instagram")}
-                                            gradientFrom={'purple'} gradientTo={'orange'}
-                                            icon={<IconBrandInstagram/>}
-                                            name="Instagram"
-                                        />
-                                    }
-
-                                    {
-                                        addMeOns.snapchat &&
-                                        <AddMeOnBanner
-                                            edit
-                                            handler={() => handleBannerClick("snapchat")}
-                                            gradientFrom={'#FFFC00'} gradientTo={'#FFFC00'}
-                                            icon={<IconBrandSnapchat color="black"
-                                                                     style={{fill: "white"}}/>}
-                                            name="Snapchat"
-                                            textColor="black"
-                                        />
-                                    }
-
-                                    {
-                                        addMeOns.linkedin &&
-                                        <AddMeOnBanner
-                                            edit
-                                            handler={() => handleBannerClick("linkedin")}
-                                            gradientFrom={'blue'} gradientTo={'blue'}
-                                            icon={<IconBrandLinkedin/>}
-                                            name="LinkedIn"
-                                        />
-                                    }
-
-                                    {
-                                        addMeOns.bereal &&
-                                        <Button
-                                            rightIcon={<IconEdit/>}
-                                            handler={() => handleBannerClick("bereal")}
-                                            variant="gradient" gradient={{from: '#000000', to: '#000000'}}
-                                            radius="xl">
-                                            <Group>
-                                                <Text>BeReal.</Text>
-                                            </Group>
-                                        </Button>
-                                    }
-
-                                    {
-                                        addMeOns.paypal &&
-                                        <AddMeOnBanner
-                                            edit
-                                            handler={() => handleBannerClick("paypal")}
-                                            gradientFrom={'#1E477A'} gradientTo={'#1E477A'}
-                                            icon={<IconBrandPaypal/>}
-                                            name="PayPal"
-                                        />
-                                    }
-
-                                    {
-                                        addMeOns.tiktok &&
-                                        <AddMeOnBanner
-                                            edit
-                                            handler={() => handleBannerClick("tiktok")}
-                                            gradientFrom={'#000000'} gradientTo={'#000000'}
-                                            icon={<IconBrandTiktok/>}
-                                            name="TikTok"
-                                        />
-                                    }
-
-                                    {
-                                        addMeOns.discord &&
-                                        <AddMeOnBanner
-                                            edit
-                                            handler={() => handleBannerClick("discord")}
-                                            gradientFrom={'#7289da'} gradientTo={'#7289da'}
-                                            icon={<IconBrandDiscord/>}
-                                            name="Discord"
-                                        />
-                                    }
-
-                                    {
-                                        addMeOns.facebook &&
-                                        <AddMeOnBanner
-                                            edit
-                                            handler={() => handleBannerClick("facebook")}
-                                            gradientFrom={'#4267B2'} gradientTo={'#4267B2'}
-                                            icon={<IconBrandFacebook/>}
-                                            name="facebook"
-                                        />
-                                    }
-
-                                    {
-                                        addMeOns.twitter &&
-                                        <AddMeOnBanner
-                                            edit
-                                            handler={() => handleBannerClick("twitter")}
-                                            gradientFrom={'#1DA1F2'} gradientTo={'#1DA1F2'}
-                                            icon={<IconBrandTwitter/>}
-                                            name="twitter"
-                                        />
-                                    }
+                                    {addMeOnBannersEdit}
                                 </SimpleGrid>
-
                             </ScrollArea>
                         </>
 

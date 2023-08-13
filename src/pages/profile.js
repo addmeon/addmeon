@@ -23,6 +23,10 @@ export async function getServerSideProps(context) {
 
     await client.close();
 
+    console.log("databaseReturn")
+    console.log(databaseReturn)
+    console.log(context.query)
+
     if (databaseReturn === null) return {props: {addMeOns: {}}};
 
     return {
@@ -79,7 +83,8 @@ export default function Profile(props) {
 
     if (router.query.userPath === userPath) return <ProfilePage addMeOns={props.addMeOns === null ? {} : props.addMeOns}/>;
 
-    router.push('/profile?userPath=' + userPath, {}, );
+    router.query.userPath = userPath;
+    router.push(router);
 
     return <ProfilePage addMeOns={props.addMeOns === null ? {} : props.addMeOns}/>;
 
