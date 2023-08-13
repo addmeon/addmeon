@@ -61,7 +61,9 @@ export default function UserPage(props) {
 
 
     const addMeOnHandler = (addMeOn) => {
+        console.log((addMeOn.telNumber ? "data:text/x-vcard;urlencoded,": "" )+ addMeOn.link)
         if (addMeOn.native) window.location = addMeOn.native;
+        if(addMeOn.telNumber) return window.location = "data:text/x-vcard," + addMeOn.link;
         window.open(addMeOn.link, "_blank");
     }
 

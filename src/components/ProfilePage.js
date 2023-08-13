@@ -68,7 +68,7 @@ export default function ProfilePage(props) {
         if (addMeOnPicked === "mobile") {
             postBody.tel = true;
             postBody.value = encodeURI("BEGIN:VCARD\nVERSION:4.0\nFN:" + mobileNameValue +
-                "\nTEL;TYPE#home,voice;VALUE#uri:tel:" + valueRef.current.value + "\nEND:VCARD");
+                "\nTEL;Mobile:" + valueRef.current.value + "\nEND:VCARD");
             postBody.name = mobileNameValue;
             postBody.telNumber = valueRef.current.value;
         }
