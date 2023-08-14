@@ -1,38 +1,25 @@
 import {
     Button,
     Center,
-    FocusTrap,
     Group,
     TextInput,
-    Loader,
     Modal,
     ScrollArea,
     Stack,
-    Text,
-    Badge, SimpleGrid, Grid, Drawer, Input, Overlay, Select
+    Text, SimpleGrid, Overlay, Select
 } from "@mantine/core";
 import * as styles from "@/styles/Userpath.module.css";
 import {
-    IconAbc,
-    IconArrowRight,
-    IconBrandDiscord,
-    IconBrandFacebook,
-    IconBrandInstagram,
-    IconBrandLinkedin,
-    IconBrandPaypal,
-    IconBrandSnapchat,
-    IconBrandTiktok,
-    IconBrandTwitter, IconDeviceFloppy,
+    IconAbc, IconDeviceFloppy,
     IconEdit,
-    IconLayoutGridAdd,
     IconLink,
-    IconPhone,
-    IconPlus, IconSearch, IconTrash, IconUser
+    IconPhone, IconTrash, IconUser
 } from "@tabler/icons-react";
 import {useDisclosure, useFocusTrap, useFocusWithin} from "@mantine/hooks";
 import AddMeOnBanner from "@/components/AddMeOnBanner";
 import {useEffect, useRef, useState} from "react";
 import addMeOnsDef from "@/data/AddMeOns";
+import QRCode from "react-qr-code";
 
 // TODO:
 //  --> mobile button saving to contact card
@@ -140,7 +127,7 @@ export default function ProfilePage(props) {
             <AddMeOnBanner
                 edit
                 handler={() => handleBannerClick(key, true,
-                    key === "custom" ? addMeOns.custom[cI] :key === "mobile" ? addMeOns["mobile"]:  null)}
+                    key === "custom" ? addMeOns.custom[cI] : key === "mobile" ? addMeOns["mobile"] : null)}
                 gradientFrom={addMeOnsDef[key].gradient.from}
                 gradientTo={addMeOnsDef[key].gradient.to}
                 icon={addMeOnsDef[key].icon}
@@ -271,6 +258,15 @@ export default function ProfilePage(props) {
             <Center p="md">
                 <Stack align="center">
                     <Text size="3vh">Welcome to your AddMeOn Page:</Text>
+
+                    <Center>
+                        <QRCode
+                            size={"20vh"}
+                            onClick={() =>
+                                window.open("https://addmeon.org/" + localStorage.getItem("userPath"))}
+                            value={"https://addmeon.org/" + localStorage.getItem("userPath")}
+                        />
+                    </Center>
                     <Text size="3vh" component="a"
                           href={"https://addmeon.org/" + localStorage.getItem("userPath")}>
                         addmeon.org/
@@ -300,7 +296,6 @@ export default function ProfilePage(props) {
                                 </SimpleGrid>
                             </ScrollArea>
                         </>
-
                     </Stack>
                 </Stack>
             </Center>
