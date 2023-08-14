@@ -5,6 +5,7 @@ import {useState} from "react";
 
 export default function HomePage() {
     const [loading, setLoading] = useState(false);
+    const [loading2, setLoading2] = useState(false);
 
     return (
         <>
@@ -21,8 +22,19 @@ export default function HomePage() {
                             try it out
                         </Button>
                     </Link>
+                    {localStorage.getItem("emailSet") && localStorage.getItem("deviceID") &&
+                        <>
+                            <Text size="3vh" pt="md">Looks like you're already logged in! Click the link below to visit your
+                                profile.</Text>
+                            <Link href="profile" prefetch={true}>
+                                <Button color="dark" variant="outline"
+                                        loading={loading2} loaderPosition="right" onClick={() => setLoading2(true)}>
+                                    Profile
+                                </Button>
+                            </Link>
+                        </>
+                    }
                 </Stack>
-
             </Center>
             <Group position="center" h="8vh" style={{borderTop: "1px solid", background: "D3D3D3"}}>
                 <Button color="dark" variant="outline"

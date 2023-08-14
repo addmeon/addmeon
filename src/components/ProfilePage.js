@@ -175,8 +175,6 @@ export default function ProfilePage(props) {
         );
     }
 
-    console.log(addMeOns)
-
 
     return (
         <>
@@ -273,7 +271,7 @@ export default function ProfilePage(props) {
             <Center p="md">
                 <Stack align="center">
                     <Text size="3vh">Welcome to your AddMeOn Page:</Text>
-                    <Text size="3vh" component="a" target="_blank"
+                    <Text size="3vh" component="a"
                           href={"https://addmeon.org/" + localStorage.getItem("userPath")}>
                         addmeon.org/
                         <span className={styles.boujee}>{localStorage.getItem("userPath")}</span>

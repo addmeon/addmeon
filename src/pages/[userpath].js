@@ -18,10 +18,12 @@ import {
     IconBrandInstagram,
     IconBrandLinkedin,
     IconBrandPaypal, IconBrandSnapchat, IconBrandTiktok, IconBrandTwitter,
-    IconPhone
+    IconPhone, IconSettings, IconShare, IconShare2
 } from "@tabler/icons-react";
 import styles from '@/styles/Userpath.module.css';
 import AddMeOnButton from "@/components/AddMeOnButton";
+import {useEffect, useState} from "react";
+import Link from "next/link";
 
 
 export async function getServerSideProps(context) {
@@ -59,12 +61,30 @@ export default function UserPage(props) {
     const router = useRouter();
     const {userpath} = router.query;
 
+    const [isUsersSite, setIsUsersSite] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setIsUsersSite(userpath === localStorage.getItem("userPath"));
+        console.log(userpath);
+        console.log(localStorage.getItem("userPath"));
+    }, [])
+
 
     const addMeOnHandler = (addMeOn) => {
-        console.log((addMeOn.telNumber ? "data:text/x-vcard;urlencoded,": "" )+ addMeOn.link)
+        console.log((addMeOn.telNumber ? "data:text/x-vcard;urlencoded," : "") + addMeOn.link)
         if (addMeOn.native) window.location = addMeOn.native;
-        if(addMeOn.telNumber) return window.location = "data:text/x-vcard," + addMeOn.link;
+        if (addMeOn.telNumber) return window.location = "data:text/x-vcard," + addMeOn.link;
         window.open(addMeOn.link, "_blank");
+    }
+
+    const handleShare = async () => {
+        try {
+            await navigator.share({ url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' });
+        } catch (e) {
+            console.log(e)
+            router.reload();
+        }
     }
 
     return (
@@ -78,6 +98,23 @@ export default function UserPage(props) {
                 >
                     <Stack align="center" spacing="md">
                         <Text weight={450} size="6vh" className={styles.boujee}>{"/" + userpath}</Text>
+                        {isUsersSite &&
+                            <>
+                                <Group pb="md">
+                                    <Link href="profile" prefetch={true}>
+                                        <Button size="xs" variant="default" rightIcon={<IconSettings/>}
+                                        loading={loading} onClick={() => setLoading(true)}>
+                                            Profile
+                                        </Button>
+                                    </Link>
+                                    <Button size="xs" variant="default" rightIcon={<IconShare2/>}
+                                    onClick={handleShare}
+                                    >
+                                        Share
+                                    </Button>
+                                </Group>
+                            </>
+                        }
                     </Stack>
                     {
                         props.addMeOns ?
