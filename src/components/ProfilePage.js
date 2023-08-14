@@ -64,7 +64,7 @@ export default function ProfilePage(props) {
         };
         addMeOnPicked === "custom" ?
             postBody.custom = {label: customKeyRef.current.value, link: valueRef.current.value}
-            : valueRef.current.value;
+            : postBody.value = valueRef.current.value;
         if (addMeOnPicked === "mobile") {
             postBody.tel = true;
             postBody.value = encodeURI("BEGIN:VCARD\nVERSION:4.0\nFN:" + mobileNameValue +
@@ -160,6 +160,7 @@ export default function ProfilePage(props) {
                 gradientTo={addMeOnsDef[key].gradient.to}
                 icon={addMeOnsDef[key].icon}
                 name={addMeOnsDef[key].name}
+                textColor={addMeOnsDef[key].textColor}
             />
         );
     }

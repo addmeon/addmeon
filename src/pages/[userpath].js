@@ -54,7 +54,7 @@ export async function getServerSideProps(context) {
     }
 }
 
-
+// TODO --> styling and buttons loaded using AddMeOns.js
 export default function UserPage(props) {
     const router = useRouter();
     const {userpath} = router.query;
