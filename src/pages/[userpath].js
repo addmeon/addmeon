@@ -80,7 +80,7 @@ export default function UserPage(props) {
 
     const handleShare = async () => {
         try {
-            await navigator.share({ url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' });
+            await navigator.share({ url: "https://addmeon.org/" + localStorage.getItem("userPath") });
         } catch (e) {
             console.log(e)
             router.reload();
